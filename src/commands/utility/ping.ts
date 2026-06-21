@@ -22,7 +22,6 @@ const command: Command = {
 
 	execute: async (interaction, client) => {
 		const start = Date.now();
-		await interaction.deferReply();
 		const roundtrip = Date.now() - start;
 
 		const embed = baseEmbed()

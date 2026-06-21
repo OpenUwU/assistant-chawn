@@ -130,7 +130,6 @@ const command: Command = {
 		),
 	execute: async (interaction) => {
 		const term = interaction.options.getString("word", true).trim();
-		await interaction.deferReply();
 
 		try {
 			const data = await fetchJson<UrbanDictionaryResponse>(

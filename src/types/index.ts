@@ -14,6 +14,7 @@ export type SlashCommandData =
 
 export interface Command {
 	data: SlashCommandData;
+	skipAutoDefer?: boolean;
 	execute: (
 		interaction: ChatInputCommandInteraction,
 		client: ExtendedClient,

@@ -146,19 +146,17 @@ const command: Command = {
 		if (durationRaw) {
 			targetSeconds = parseDurationToSeconds(durationRaw);
 			if (targetSeconds === null) {
-				await interaction.reply({
+				await interaction.editReply({
 					embeds: [
 						errorEmbed(
 							"Invalid duration format — use `mm:ss`, e.g. `3:42`.",
 						),
 					],
-					ephemeral: true,
 				});
 				return;
 			}
 		}
 
-		await interaction.deferReply();
 		const fetcher = new LyricsFetcher();
 
 		try {
