@@ -1,7 +1,7 @@
 {
-	"name": "discord-user-app-bot",
+	"name": "assistant-chawn",
 	"version": "1.0.0",
-	"description": "Lightweight, modular Discord.js User-Installable App (dictionary & lyrics utility bot)",
+	"description": "Lightweight uer installable discord bot",
 	"main": "dist/index.js",
 	"type": "module",
 	"scripts": {
