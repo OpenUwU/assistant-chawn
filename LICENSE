@@ -1,0 +1,115 @@
+OpenUwU Source-Available License (OUSL) v1
+Copyright (c) 2026  bre4d777,mooncarli and OpenUwU Contributors
+
+This license applies to all code, assets, and content (the "Software")
+in this repository.
+
+0. ROLES
+   a. "Lead Owners" refers to  bre4d777 and mooncarli, who jointly hold
+      final decision-making authority over the Software, this license,
+      and the project's direction. Decisions require agreement between
+      the Lead Owners; in the event of a dispute between them, this
+      license does not resolve it and they must settle it between
+      themselves.
+   b. "Contributors" are individuals who submit accepted changes to
+      the Software. Contributors are credited as co-owners of the
+      project for recognition purposes (Section 1b), but do not hold
+      individual control, veto power, or decision-making authority
+      over the Software, the org, or this license. All such authority
+      rests solely with the Lead Owners.
+   c. By submitting a contribution (pull request, patch, or similar),
+      a Contributor grants the Lead Owners and the project a perpetual,
+      irrevocable, worldwide license to use, modify, relicense, and
+      distribute that contribution as part of the Software, while
+      retaining their credit as a Contributor.
+
+1. OWNERSHIP
+   a. The Software, including all modifications, forks, and derivative
+      works, remains the property of the Lead Owners and credited
+      Contributors collectively (the "Owners").
+   b. Contributors are recognized as co-owners for credit, attribution,
+      and reputational purposes only. Final authority over use,
+      licensing, enforcement, and direction of the Software belongs
+      exclusively to the Lead Owners.
+   c. Forking or modifying the Software does not transfer or grant
+      ownership to the person doing so, and does not make them an
+      Owner or Contributor unless their changes are formally accepted
+      into the official repository.
+
+2. PERMITTED USE
+   You are permitted, free of charge, to:
+     a. View and study the source code.
+     b. Use the Software for personal, non-commercial purposes.
+     c. Modify the Software for personal use or to contribute back
+        to the original repository.
+     d. Fork the repository, provided the fork remains public,
+        retains this license unmodified, and clearly credits the
+        original Owners and repository in the README and source
+        headers.
+
+3. REQUIRED CREDIT
+   Any use, copy, fork, or modification of the Software — public or
+   private — must retain:
+     a. This license file, unmodified.
+     b. Clear and visible credit to "mooncarli, bre4d777, and OpenUwu
+        Contributors" with a link to the original repository, in
+        the README and in any user-facing interface (e.g. bot
+        "about"/"info" command, application footer, etc.) where
+        such credit can reasonably be displayed.
+
+4. PROHIBITED USES
+   You may NOT, under any circumstances:
+     a. Sell, rent, sublicense, or otherwise charge money for the
+        Software or any derivative/modified version of it.
+     b. Offer the Software or a modified version as a paid product,
+        paid service, or behind a paywall (including donations
+        framed as required payment for access).
+     c. Remove, obscure, or alter credit/attribution to the Owners.
+     d. Re-upload, redistribute, or present the Software (or a
+        modified version) as your own original work ("code
+        stealing"), including publishing it under a different
+        license or claiming authorship.
+     e. Use the Software, or any derivative of it, in a closed-source
+        or private commercial product.
+
+5. MODIFICATIONS REMAIN OPEN
+   Any modified or derivative version of the Software must:
+     a. Be made publicly available under this exact same license.
+     b. Remain free to access and use under the same terms.
+     c. Continue to credit the original Owners, in addition to
+        crediting yourself as the modifier if you wish.
+   Modifying the Software does NOT grant you ownership over it —
+   ownership of the original and derivative work remains with the
+   Owners as stated in Section 1.
+
+6. DISCRETIONARY REVOCATION
+   The Lead Owners reserve the right, jointly, to revoke the license
+   granted under Section 2 for any specific individual, fork, or
+   project at their sole discretion, with or without cause, by
+   providing notice (e.g. a public statement, issue, or direct
+   message) to the affected party. Upon revocation, that party must
+   cease use, distribution, and public hosting of the Software and
+   any derivative of it within 14 days.
+
+7. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+   NONINFRINGEMENT. IN NO EVENT SHALL THE OWNERS BE LIABLE FOR ANY
+   CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF THE
+   SOFTWARE.
+
+8. TERMINATION
+   Any violation of Sections 3 or 4 automatically terminates your
+   rights under this license. The Owners reserve the right to take
+   action against violators, including DMCA takedown requests.
+
+   Violation of Section 0(b) — i.e. a Contributor or fork-owner
+   claiming decision-making authority, relicensing rights, or control
+   over the Software they do not have — also constitutes grounds for
+   termination under this section.
+
+9. CONTACT
+   For licensing questions, commercial use requests, or permission
+   beyond this license, contact mooncarli or bre4d777, or open an
+   issue in the OpenUwU organization repository.
