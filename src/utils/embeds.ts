@@ -1,6 +1,6 @@
 import { EmbedBuilder } from "discord.js";
 
-const BRAND_COLOR = 0x5865f2; // Discord blurple — swap for your own brand color
+const BRAND_COLOR = 0x5865f2;
 const ERROR_COLOR = 0xed4245;
 
 export function baseEmbed(): EmbedBuilder {
