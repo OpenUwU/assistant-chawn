@@ -9,12 +9,6 @@ import {
 import type { Command } from "../../types/index.js";
 import { errorEmbed } from "../../utils/embeds.js";
 
-interface EmojiMatch {
-	id: string;
-	ext: string;
-	animated: boolean;
-}
-
 const command: Command = {
 	data: new SlashCommandBuilder()
 		.setName("emoji")
