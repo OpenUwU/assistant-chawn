@@ -1,0 +1,37 @@
+{
+	"name": "discord-user-app-bot",
+	"version": "1.0.0",
+	"description": "Lightweight, modular Discord.js User-Installable App (dictionary & lyrics utility bot)",
+	"main": "dist/index.js",
+	"type": "module",
+	"scripts": {
+		"build": "tsc",
+		"start": "node dist/index.js",
+		"format": "biome format --write .",
+		"lint": "biome lint  .",
+		"lint:fix": "biome lint --write .",
+		"dev": "tsx watch src/index.ts",
+		"deploy": "tsx dist/deploy-commands.js",
+		"prepare": "husky",
+		"commit": "cz"
+	},
+	"dependencies": {
+		"@biomejs/biome": "^2.5.0",
+		"discord.js": "^14.16.3",
+		"dotenv": "^16.4.5"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^21.0.2",
+		"@commitlint/config-conventional": "^21.0.2",
+		"@types/node": "^22.7.5",
+		"commitizen": "^4.3.2",
+		"cz-conventional-changelog": "^3.3.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^17.0.7",
+		"tsx": "^4.19.1",
+		"typescript": "^5.6.3"
+	},
+	"engines": {
+		"node": ">=18.17.0"
+	}
+}
