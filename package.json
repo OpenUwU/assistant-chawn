@@ -17,6 +17,7 @@
 	},
 	"dependencies": {
 		"@biomejs/biome": "^2.5.0",
+		"@sourcebin/linguist": "^0.0.3",
 		"discord.js": "^14.16.3",
 		"dotenv": "^16.4.5",
 		"qr": "^0.6.0",
