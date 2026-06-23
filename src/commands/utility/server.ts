@@ -6,7 +6,7 @@ import {
 } from "discord.js";
 import type { ExtendedClient } from "../../client.js";
 import type { Command } from "../../types/index.js";
-import { baseEmbed, errorEmbed } from "../../utils/embeds.js";
+import { baseEmbed, errorEmbed } from "../../utils/components.js";
 
 const FEATURE_NAMES: Record<string, string> = {
 	ANIMATED_BANNER: "Animated Banner",

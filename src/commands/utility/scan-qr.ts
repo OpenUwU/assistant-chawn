@@ -6,7 +6,7 @@ import {
 import decodeQR from "qr/decode.js";
 import sharp from "sharp";
 import type { Command } from "../../types/index.js";
-import { baseEmbed, errorEmbed } from "../../utils/embeds.js";
+import { baseEmbed, errorEmbed } from "../../utils/components.js";
 
 async function scanQrFromBuffer(buffer: Buffer) {
 	const { data, info } = await sharp(buffer)

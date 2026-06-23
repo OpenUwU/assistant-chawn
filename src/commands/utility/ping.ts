@@ -4,7 +4,7 @@ import {
 	SlashCommandBuilder,
 } from "discord.js";
 import type { Command } from "../../types/index.js";
-import { baseEmbed } from "../../utils/embeds.js";
+import { baseEmbed } from "../../utils/components.js";
 
 const command: Command = {
 	data: new SlashCommandBuilder()

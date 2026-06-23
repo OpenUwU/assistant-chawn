@@ -5,10 +5,16 @@ import {
 	ButtonStyle,
 	ComponentType,
 	InteractionContextType,
+	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
 import type { Command } from "../../types/index.js";
-import { baseEmbed, errorEmbed } from "../../utils/embeds.js";
+import {
+	baseContainer,
+	errorContainer,
+	Separator,
+	TextDisplay,
+} from "../../utils/components.js";
 import { fetchJson } from "../../utils/http.js";
 
 interface UrbanDictionaryEntry {
@@ -23,14 +29,8 @@ interface UrbanDictionaryResponse {
 	list: UrbanDictionaryEntry[];
 }
 
-const DESCRIPTION_LIMIT = 4000;
-const FIELD_LIMIT = 1024;
 const COLLECTOR_TIMEOUT_MS = 5 * 60 * 1000;
 
-/**
- * Urban Dictionary wraps cross-linked terms in square brackets
- * strips the brackets  and normalizes line endings.
- */
 function cleanUdText(text: string): string {
 	return text
 		.replace(/\[([^\]]+)\]/g, "$1")
@@ -42,34 +42,27 @@ function truncate(text: string, max: number): string {
 	return text.length > max ? `${text.slice(0, max - 1)}...` : text;
 }
 
-function buildEmbed(entry: UrbanDictionaryEntry, index: number, total: number) {
-	const definition = truncate(
-		cleanUdText(entry.definition),
-		DESCRIPTION_LIMIT,
-	);
-	const example = cleanUdText(entry.example);
+function buildContainer(
+	entry: UrbanDictionaryEntry,
+	index: number,
+	total: number,
+) {
+	const definition = truncate(cleanUdText(entry.definition), 2048);
+	const example = truncate(cleanUdText(entry.example), 1536);
 
 	const writtenTs = Math.floor(new Date(entry.written_on).getTime() / 1000);
-
-	const embed = baseEmbed()
-		.setTitle(entry.word)
-		.setURL(entry.permalink)
-		.setDescription(definition)
-		.addFields(
-			{ name: "Written", value: `<t:${writtenTs}:F>`, inline: true },
-			{ name: "Author", value: entry.author || "Unknown", inline: true },
+	const container = baseContainer()
+		.addTextDisplayComponents(TextDisplay(`**${truncate(entry.word, 256)}**`))
+		.addSeparatorComponents(Separator())
+		.addTextDisplayComponents(
+			TextDisplay(`>>> ${definition}`),
+			TextDisplay(`>>> ${truncate(entry.author, 50)} <t:${writtenTs}:F>`),
+			TextDisplay("Example:"),
+			TextDisplay(`>>> ${example ?? "No example."} `),
+			TextDisplay(`-# definition ${index + 1} of ${total}`),
 		);
 
-	if (example) {
-		embed.addFields({
-			name: "Example",
-			value: truncate(example, FIELD_LIMIT),
-		});
-	}
-
-	embed.setFooter({ text: `Definition ${index + 1} of ${total}` });
-
-	return embed;
+	return container;
 }
 
 function buildButtons(
@@ -138,9 +131,12 @@ const command: Command = {
 
 			if (data.list.length === 0) {
 				await interaction.editReply({
-					embeds: [
-						errorEmbed(`No Urban Dictionary results for **${term}**.`),
+					components: [
+						errorContainer(
+							`No Urban Dictionary results for **${term}**.`,
+						),
 					],
+					flags: MessageFlags.IsComponentsV2,
 				});
 				return;
 			}
@@ -148,19 +144,23 @@ const command: Command = {
 			const entries = data.list;
 			const total = entries.length;
 			let index = 0;
-
 			const response = await interaction.editReply({
-				embeds: [buildEmbed(entries[index], index, total)],
 				components: [
-					buildButtons(
+					buildContainer(
+						entries[index],
 						index,
 						total,
-						entries[index].permalink,
-						total === 1,
+					).addActionRowComponents(
+						buildButtons(
+							index,
+							total,
+							entries[index].permalink,
+							total === 1,
+						),
 					),
 				],
+				flags: MessageFlags.IsComponentsV2,
 			});
-
 			if (total === 1) return;
 
 			const collector = response.createMessageComponentCollector({
@@ -177,20 +177,37 @@ const command: Command = {
 				}
 
 				await i.update({
-					embeds: [buildEmbed(entries[index], index, total)],
 					components: [
-						buildButtons(index, total, entries[index].permalink),
+						buildContainer(
+							entries[index],
+							index,
+							total,
+						).addActionRowComponents(
+							buildButtons(index, total, entries[index].permalink),
+						),
 					],
+					flags: MessageFlags.IsComponentsV2,
 				});
 			});
 
 			collector.on("end", async () => {
 				try {
 					await interaction.editReply({
-						embeds: [buildEmbed(entries[index], index, total)],
 						components: [
-							buildButtons(index, total, entries[index].permalink, true),
+							buildContainer(
+								entries[index],
+								index,
+								total,
+							).addActionRowComponents(
+								buildButtons(
+									index,
+									total,
+									entries[index].permalink,
+									true,
+								),
+							),
 						],
+						flags: MessageFlags.IsComponentsV2,
 					});
 				} catch {
 					// message may have been deleted; ignore
@@ -198,11 +215,12 @@ const command: Command = {
 			});
 		} catch {
 			await interaction.editReply({
-				embeds: [
-					errorEmbed(
+				components: [
+					errorContainer(
 						"Something went wrong fetching that definition. Try again shortly.",
 					),
 				],
+				flags: MessageFlags.IsComponentsV2,
 			});
 		}
 	},

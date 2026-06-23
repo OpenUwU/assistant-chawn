@@ -8,7 +8,7 @@ import {
 	SlashCommandBuilder,
 } from "discord.js";
 import type { Command } from "../../types/index.js";
-import { baseEmbed, errorEmbed } from "../../utils/embeds.js";
+import { baseEmbed, errorEmbed } from "../../utils/components.js";
 import {
 	formatSeconds,
 	LyricsFetcher,

@@ -1,11 +1,19 @@
 import {
 	ApplicationIntegrationType,
 	InteractionContextType,
+	MediaGalleryBuilder,
+	MessageFlags,
 	SlashCommandBuilder,
 	type User,
 } from "discord.js";
 import type { Command } from "../../types/index.js";
-import { baseEmbed, errorEmbed } from "../../utils/embeds.js";
+import {
+	baseContainer,
+	baseSection,
+	errorContainer,
+	TextDisplay,
+	Thumbnail,
+} from "../../utils/components.js";
 
 const FLAG_NAMES: Record<string, string> = {
 	Staff: "Discord Staff",
@@ -17,10 +25,12 @@ const FLAG_NAMES: Record<string, string> = {
 	HypeSquadOnlineHouse2: "House Brilliance",
 	HypeSquadOnlineHouse3: "House Balance",
 	PremiumEarlySupporter: "Early Supporter",
+	TeamPseudoUser: "Team User",
 	VerifiedBot: "Verified Bot",
 	VerifiedDeveloper: "Early Verified Bot Developer",
 	CertifiedModerator: "Moderator Programs Alumni",
 	ActiveDeveloper: "Active Developer",
+	BotHTTPInteractions: "HTTP Interactions Bot",
 };
 
 const command: Command = {
@@ -41,7 +51,6 @@ const command: Command = {
 		),
 	execute: async (interaction) => {
 		const target = interaction.options.getUser("user") ?? interaction.user;
-
 		let fullUser: User;
 		try {
 			fullUser = await interaction.client.users.fetch(target.id, {
@@ -49,51 +58,62 @@ const command: Command = {
 			});
 		} catch {
 			await interaction.editReply({
-				embeds: [errorEmbed("Could not fetch that user.")],
+				components: [errorContainer("Could not fetch that user.")],
+				flags: MessageFlags.IsComponentsV2,
 			});
 			return;
 		}
 
 		const flags = fullUser.flags?.toArray() ?? [];
 		const badges = flags.map((f) => FLAG_NAMES[f] ?? f).join(", ") || "None";
+		const primaryGuild = fullUser.primaryGuild;
 
-		const embed = baseEmbed()
-			.setTitle(fullUser.username)
-			.setThumbnail(fullUser.displayAvatarURL({ size: 512 }))
-			.addFields(
-				{ name: "ID", value: fullUser.id, inline: true },
-				{ name: "Bot", value: fullUser.bot ? "Yes" : "No", inline: true },
-				{
-					name: "Created",
-					value: `<t:${Math.floor(fullUser.createdTimestamp / 1000)}:R>`,
-					inline: true,
-				},
-				{ name: "Badges", value: badges },
-			);
+		const identity = [
+			`### ${fullUser.globalName ?? fullUser.username}`,
+			fullUser.globalName ? `**Username:** ${fullUser.username}` : null,
+			`**ID:** \`${fullUser.id}\``,
+			`**Tag:** ${fullUser.tag}`,
+			`**Bot:** ${fullUser.bot ? "Yes" : "No"}`,
+			fullUser.system ? `**System:** Yes` : null,
+		]
+			.filter(Boolean)
+			.join("\n");
+
+		const details = [
+			`> **Created:** <t:${Math.floor(fullUser.createdTimestamp / 1000)}:R> (<t:${Math.floor(fullUser.createdTimestamp / 1000)}:D>)`,
+			primaryGuild?.tag
+				? `> **Server Tag:** ${primaryGuild.tag}${primaryGuild.identityGuildId ? ` (\`${primaryGuild.identityGuildId}\`)` : ""}`
+				: null,
+			`> **Badges:** ${badges}`,
+		]
+			.filter(Boolean)
+			.join("\n");
+		const container = baseContainer().addSectionComponents(
+			baseSection()
+				.addTextDisplayComponents(TextDisplay(identity))
+				.setThumbnailAccessory(
+					Thumbnail(
+						"user's avatar",
+						fullUser.displayAvatarURL() ?? fullUser.defaultAvatarURL,
+					),
+				)
+				.addTextDisplayComponents(TextDisplay(details)),
+		);
 
 		const banner = fullUser.bannerURL({ size: 1024 });
-		if (banner) embed.setImage(banner);
-		if (fullUser.accentColor) embed.setColor(fullUser.accentColor);
-
-		const member = interaction.guild?.members.cache.get(fullUser.id);
-		if (member) {
-			embed.addFields(
-				{
-					name: "Joined Server",
-					value: member.joinedTimestamp
-						? `<t:${Math.floor(member.joinedTimestamp / 1000)}:R>`
-						: "Unknown",
-					inline: true,
-				},
-				{
-					name: "Nickname",
-					value: member.nickname ?? "None",
-					inline: true,
-				},
+		if (banner)
+			container.addMediaGalleryComponents(
+				new MediaGalleryBuilder().addItems((media) =>
+					media.setDescription("user's banner").setURL(banner),
+				),
 			);
-		}
 
-		await interaction.editReply({ embeds: [embed] });
+		if (fullUser.accentColor) container.setAccentColor(fullUser.accentColor);
+
+		await interaction.editReply({
+			components: [container],
+			flags: MessageFlags.IsComponentsV2,
+		});
 	},
 };
 

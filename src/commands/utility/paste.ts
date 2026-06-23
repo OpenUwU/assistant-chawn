@@ -8,7 +8,7 @@ import {
 	SlashCommandBuilder,
 } from "discord.js";
 import type { Command } from "../../types/index.js";
-import { errorEmbed } from "../../utils/embeds.js";
+import { errorEmbed } from "../../utils/components.js";
 
 const API_URL = "https://sourceb.in/api";
 

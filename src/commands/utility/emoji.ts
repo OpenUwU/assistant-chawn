@@ -4,10 +4,11 @@ import {
 	ButtonBuilder,
 	ButtonStyle,
 	InteractionContextType,
+	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
 import type { Command } from "../../types/index.js";
-import { errorEmbed } from "../../utils/embeds.js";
+import { errorContainer } from "../../utils/components.js";
 
 const command: Command = {
 	data: new SlashCommandBuilder()
@@ -31,7 +32,10 @@ const command: Command = {
 
 		if (!match?.groups) {
 			await interaction.editReply({
-				embeds: [errorEmbed("That doesn't look like a custom emoji.")],
+				components: [
+					errorContainer("That doesn't look like a custom emoji."),
+				],
+				flags: MessageFlags.IsComponentsV2,
 			});
 			return;
 		}

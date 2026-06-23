@@ -5,10 +5,11 @@ import {
 	ButtonBuilder,
 	ButtonStyle,
 	InteractionContextType,
+	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
 import type { Command } from "../../types/index.js";
-import { errorEmbed } from "../../utils/embeds.js";
+import { errorContainer } from "../../utils/components.js";
 
 const command: Command = {
 	data: new SlashCommandBuilder()
@@ -67,11 +68,12 @@ const command: Command = {
 			});
 		} catch {
 			await interaction.editReply({
-				embeds: [
-					errorEmbed(
+				components: [
+					errorContainer(
 						"Something went wrong fetching that avatar. Try again shortly.",
 					),
 				],
+				flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
 			});
 		}
 	},

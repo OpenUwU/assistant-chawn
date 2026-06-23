@@ -1,10 +1,16 @@
 import {
 	ApplicationIntegrationType,
 	InteractionContextType,
+	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
 import type { Command } from "../../types/index.js";
-import { baseEmbed, errorEmbed } from "../../utils/embeds.js";
+import {
+	baseContainer,
+	errorContainer,
+	Separator,
+	TextDisplay,
+} from "../../utils/components.js";
 
 const command: Command = {
 	data: new SlashCommandBuilder()
@@ -65,7 +71,10 @@ const command: Command = {
 				/^(https?:\/\/)?(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z0-9-]{1,63})+$/;
 			if (!domainPattern.test(domain)) {
 				await interaction.editReply({
-					embeds: [errorEmbed("That doesn't look like a valid domain.")],
+					components: [
+						errorContainer("That doesn't look like a valid domain."),
+					],
+					flags: MessageFlags.IsComponentsV2,
 				});
 				return;
 			}
@@ -92,9 +101,12 @@ const command: Command = {
 
 				if (data.Status !== 0 || !data.Answer || data.Answer.length === 0) {
 					await interaction.editReply({
-						embeds: [
-							errorEmbed(`No ${type} records found for \`${domain}\`.`),
+						components: [
+							errorContainer(
+								`No ${type} records found for \`${domain}\`.`,
+							),
 						],
+						flags: MessageFlags.IsComponentsV2,
 					});
 					return;
 				}
@@ -103,17 +115,24 @@ const command: Command = {
 					(r) => `\`${r.data}\` (TTL: ${r.TTL}s)`,
 				).join("\n");
 
-				const embed = baseEmbed()
-					.setTitle(`DNS Lookup: ${domain}`)
-					.addFields({
-						name: `${type} Records`,
-						value: records.slice(0, 1024),
-					});
+				const container = baseContainer()
+					.addTextDisplayComponents(
+						TextDisplay(`### DNS Lookup: ${domain}`),
+					)
+					.addSeparatorComponents(Separator())
+					.addTextDisplayComponents(TextDisplay(`** ${type} Records **`))
+					.addTextDisplayComponents(
+						TextDisplay(`>>> ${records.slice(0, 1024)}`),
+					);
 
-				await interaction.editReply({ embeds: [embed] });
+				await interaction.editReply({
+					components: [container],
+					flags: MessageFlags.IsComponentsV2,
+				});
 			} catch {
 				await interaction.editReply({
-					embeds: [errorEmbed("Failed to resolve DNS records.")],
+					components: [errorContainer("Failed to resolve DNS records.")],
+					flags: MessageFlags.IsComponentsV2,
 				});
 			}
 		}
@@ -125,9 +144,12 @@ const command: Command = {
 
 			if (!ipPattern.test(ip)) {
 				await interaction.editReply({
-					embeds: [
-						errorEmbed("That doesn't look like a valid IPv4 address."),
+					components: [
+						errorContainer(
+							"That doesn't look like a valid IPv4 address.",
+						),
 					],
+					flags: MessageFlags.IsComponentsV2,
 				});
 				return;
 			}
@@ -154,40 +176,54 @@ const command: Command = {
 
 				if (data.status !== "success") {
 					await interaction.editReply({
-						embeds: [
-							errorEmbed(data.message ?? "Could not resolve that IP."),
+						components: [
+							errorContainer(
+								data.message ?? "Could not resolve that IP.",
+							),
 						],
+						flags: MessageFlags.IsComponentsV2,
 					});
 					return;
 				}
-
-				const embed = baseEmbed()
-					.setTitle(`IP Lookup: ${data.query}`)
-					.addFields(
-						{
-							name: "Country",
-							value: data.country ?? "Unknown",
-							inline: true,
-						},
-						{
-							name: "Region",
-							value: data.regionName ?? "Unknown",
-							inline: true,
-						},
-						{ name: "City", value: data.city ?? "Unknown", inline: true },
-						{
-							name: "Timezone",
-							value: data.timezone ?? "Unknown",
-							inline: true,
-						},
-						{ name: "ISP", value: data.isp ?? "Unknown", inline: true },
-						{ name: "ASN", value: data.as ?? "Unknown", inline: true },
+				const container = baseContainer()
+					.addTextDisplayComponents(
+						TextDisplay(`### IP Lookup: ${data.query}`),
+					)
+					.addSeparatorComponents(Separator())
+					.addTextDisplayComponents(TextDisplay(`** IP Information **`))
+					.addTextDisplayComponents(
+						TextDisplay(`>>> **Country:**: ${data.country ?? "Unknown"}`),
+					)
+					.addTextDisplayComponents(
+						TextDisplay(
+							`>>> **Region:**: ${data.regionName ?? "Unknown"}`,
+						),
+					)
+					.addTextDisplayComponents(
+						TextDisplay(`>>> **City:**: ${data.city ?? "Unknown"}`),
+					)
+					.addTextDisplayComponents(
+						TextDisplay(
+							`>>> **Timezone:**: ${data.timezone ?? "Unknown"}`,
+						),
+					)
+					.addTextDisplayComponents(
+						TextDisplay(`>>> **ISP:**: ${data.isp ?? "Unknown"}`),
+					)
+					.addTextDisplayComponents(
+						TextDisplay(`>>> **ASN:**: ${data.as ?? "Unknown"}`),
 					);
 
-				await interaction.editReply({ embeds: [embed] });
+				await interaction.editReply({
+					components: [container],
+					flags: MessageFlags.IsComponentsV2,
+				});
 			} catch {
 				await interaction.editReply({
-					embeds: [errorEmbed("Failed to look up that IP address.")],
+					components: [
+						errorContainer("Failed to look up that IP address."),
+					],
+					flags: MessageFlags.IsComponentsV2,
 				});
 			}
 		}

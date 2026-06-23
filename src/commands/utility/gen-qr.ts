@@ -2,11 +2,12 @@ import {
 	ApplicationIntegrationType,
 	AttachmentBuilder,
 	InteractionContextType,
+	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
 import encodeQR from "qr";
 import type { Command } from "../../types/index.js";
-import { errorEmbed } from "../../utils/embeds.js";
+import { errorContainer } from "../../utils/components.js";
 import { logger } from "../../utils/logger.js";
 
 async function buildQrAttachment(url: string) {
@@ -50,11 +51,12 @@ const command: Command = {
 		const url = interaction.options.getString("url", true);
 		if (!isValidUrl(url)) {
 			await interaction.editReply({
-				embeds: [
-					errorEmbed(
+				components: [
+					errorContainer(
 						"Invalid URL — make sure it starts with `http://` or `https://`.",
 					),
 				],
+				flags: MessageFlags.IsComponentsV2,
 			});
 			return;
 		}
@@ -65,9 +67,12 @@ const command: Command = {
 			const message = err instanceof Error ? err.message : String(err);
 			logger.error(message);
 			await interaction.editReply({
-				embeds: [
-					errorEmbed("Something went wrong while generating the QR code."),
+				components: [
+					errorContainer(
+						"Something went wrong while generating the QR code.",
+					),
 				],
+				flags: MessageFlags.IsComponentsV2,
 			});
 			return;
 		}

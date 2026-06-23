@@ -5,10 +5,11 @@ import {
 	ButtonStyle,
 	ComponentType,
 	InteractionContextType,
+	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
 import type { Command } from "../../types/index.js";
-import { errorEmbed } from "../../utils/embeds.js";
+import { errorContainer } from "../../utils/components.js";
 
 const CODEBLOCK_OVERHEAD = "```text\n\n```".length;
 const PAGE_LIMIT = 2000 - CODEBLOCK_OVERHEAD;
@@ -164,7 +165,10 @@ const command: Command = {
 			if (subcommand === "decode") {
 				if (!isValidBase64(text)) {
 					await interaction.editReply({
-						embeds: [errorEmbed("That doesn't look like valid base64.")],
+						components: [
+							errorContainer("That doesn't look like valid base64."),
+						],
+						flags: MessageFlags.IsComponentsV2,
 					});
 					return;
 				}
@@ -175,11 +179,12 @@ const command: Command = {
 			}
 		} catch {
 			await interaction.editReply({
-				embeds: [
-					errorEmbed(
+				components: [
+					errorContainer(
 						"Something went wrong processing that text. Try again shortly.",
 					),
 				],
+				flags: MessageFlags.IsComponentsV2,
 			});
 		}
 	},

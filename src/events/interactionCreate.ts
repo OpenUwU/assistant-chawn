@@ -1,7 +1,7 @@
-import { Events, type Interaction } from "discord.js";
+import { Events, type Interaction, MessageFlags } from "discord.js";
 import type { ExtendedClient } from "../client.js";
 import type { BotEvent } from "../types/index.js";
-import { errorEmbed } from "../utils/embeds.js";
+import { errorContainer } from "../utils/components.js";
 import { logger } from "../utils/logger.js";
 
 const event: BotEvent<typeof Events.InteractionCreate> = {
@@ -34,8 +34,10 @@ const event: BotEvent<typeof Events.InteractionCreate> = {
 			);
 
 			const payload = {
-				embeds: [errorEmbed("Something went wrong running that command.")],
-				flags: 64,
+				components: [
+					errorContainer("Something went wrong running that command."),
+				],
+				flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
 			};
 
 			try {
