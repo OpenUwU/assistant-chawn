@@ -1,11 +1,18 @@
+/**
+ * Credits: The OpenUwU Project
+ * Author:  @bre4d777 and collaborators
+ * Project: Assistant Chawn
+ * github.com/openUwU/assistant-chawn
+ */
+
 import type { NvidiaChatRequest, NvidiaChatResponse } from "../types/ai.js";
 import { fetchJson, HttpError } from "./http.js";
 
 const ENDPOINT = "https://integrate.api.nvidia.com/v1/chat/completions";
-const MODEL = "moonshotai/kimi-k2.6";
-const MAX_TOKENS = 900;
+const MODEL = "z-ai/glm-5.1";
+const MAX_TOKENS = 1500;
 const SAFE_LIMIT = 3800;
-const TIMEOUT_MS = 20000;
+const TIMEOUT_MS = 100_000;
 
 const SYSTEM_PROMPT =
 	"You are replying inside a single Discord message. Use Discord markdown " +
@@ -14,7 +21,7 @@ const SYSTEM_PROMPT =
 	"blockquote. Never use HTML or LaTeX. Keep the entire reply under 3500 " +
 	"characters, use short paragraphs, and prefer '- ' bullet points over long " +
 	"walls of text. Only answer what was explicitly asked, with no extra " +
-	"context, caveats, or unrelated information.";
+	"context, caveats, or unrelated information. the following is the user's prompt: ";
 
 export class AiError extends Error {}
 
@@ -52,7 +59,8 @@ export async function generateText(prompt: string): Promise<string> {
 					],
 					max_tokens: MAX_TOKENS,
 					temperature: 1,
-					top_p: 1,
+					reasoning_effort: "high",
+					top_p: 0.95,
 					stream: false,
 				} satisfies NvidiaChatRequest),
 			},
