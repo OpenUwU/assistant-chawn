@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * Credits: The OpenUwU Project
  * Author:  @bre4d777 and collaborators
@@ -6,6 +7,7 @@
  * github.com/openUwU/assistant-chawn
  */
 
+import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -35,8 +37,10 @@ function getAllTsFiles(dir, results = []) {
 	return results;
 }
 
-const args = process.argv.slice(2);
-const files = args.length ? args : getAllTsFiles(".");
+const rawArgs = process.argv.slice(2);
+const stage = rawArgs.includes("--stage");
+const fileArgs = rawArgs.filter((a) => a !== "--stage");
+const files = fileArgs.length ? fileArgs : getAllTsFiles(".");
 
 let changed = 0;
 for (const file of files) {
@@ -46,8 +50,10 @@ for (const file of files) {
 	const content = fs.readFileSync(file, "utf8");
 	if (content.includes(MARKER)) continue;
 
-	fs.writeFileSync(file, `${HEADER} \n ${content}`);
+	fs.writeFileSync(file, `${HEADER}\n${content}`);
 	console.log(`Added header to ${file}`);
+
+	if (stage) execSync(`git add ${JSON.stringify(file)}`);
 	changed++;
 }
 
