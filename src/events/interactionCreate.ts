@@ -1,3 +1,10 @@
+/**
+ * Credits: The OpenUwU Project
+ * Author:  @bre4d777 and collaborators
+ * Project: Assistant Chawn
+ * github.com/openUwU/assistant-chawn
+ */
+
 import { Events, type Interaction, MessageFlags } from "discord.js";
 import type { ExtendedClient } from "../client.js";
 import type { BotEvent } from "../types/index.js";

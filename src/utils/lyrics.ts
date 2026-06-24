@@ -1,3 +1,10 @@
+/**
+ * Credits: The OpenUwU Project
+ * Author:  @bre4d777 and collaborators
+ * Project: Assistant Chawn
+ * github.com/openUwU/assistant-chawn
+ */
+
 const REQUEST_TIMEOUT = 8000;
 
 export type LyricsSource = "lrclib" | "musixmatch" | "deezer" | "genius";

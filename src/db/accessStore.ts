@@ -1,3 +1,10 @@
+/**
+ * Credits: The OpenUwU Project
+ * Author:  @bre4d777 and collaborators
+ * Project: Assistant Chawn
+ * github.com/openUwU/assistant-chawn
+ */
+
 import { mkdirSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";

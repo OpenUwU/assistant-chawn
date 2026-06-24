@@ -1,3 +1,10 @@
+/**
+ * Credits: The OpenUwU Project
+ * Author:  @bre4d777 and collaborators
+ * Project: Assistant Chawn
+ * github.com/openUwU/assistant-chawn
+ */
+
 import { linguist, type SourcebinLinguistItem } from "@sourcebin/linguist";
 import {
 	ActionRowBuilder,

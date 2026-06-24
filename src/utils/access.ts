@@ -1,3 +1,10 @@
+/**
+ * Credits: The OpenUwU Project
+ * Author:  @bre4d777 and collaborators
+ * Project: Assistant Chawn
+ * github.com/openUwU/assistant-chawn
+ */
+
 import type { ChatInputCommandInteraction } from "discord.js";
 import { MessageFlags } from "discord.js";
 import { hasAccess } from "../db/accessStore.js";
