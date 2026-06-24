@@ -27,8 +27,8 @@ const command: Command = {
 		),
 
 	execute: async (interaction, client) => {
-		const start = Date.now();
-		const roundtrip = Date.now() - start;
+		const roundtrip = Date.now() - interaction.createdTimestamp;
+
 		let MsgContent = `>>> 🏓 Pong! \n Websocket: ${client.ws.ping}ms (Roundtrip: ${roundtrip}ms) `;
 		if (client.readyTimestamp) {
 			MsgContent += `\n Ready since  <t:${Math.floor(client.readyTimestamp / 1000)}:F>`;

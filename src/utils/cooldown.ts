@@ -1,3 +1,10 @@
+/**
+ * Credits: The OpenUwU Project
+ * Author:  @bre4d777 and collaborators
+ * Project: Assistant Chawn
+ * github.com/openUwU/assistant-chawn
+ */
+
 const COOLDOWN_MS = 5000;
 const SWEEP_INTERVAL_MS = 60_000;
 
