@@ -14,6 +14,10 @@ export class ExtendedClient extends Client {
 		super({
 			intents: [GatewayIntentBits.Guilds],
 			partials: [Partials.Channel],
+			allowedMentions: {
+				parse: [],
+				repliedUser: false,
+			},
 
 			makeCache: Options.cacheWithLimits({
 				...Options.DefaultMakeCacheSettings,

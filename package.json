@@ -11,7 +11,6 @@
 		"lint": "biome lint  .",
 		"lint:fix": "biome lint --write .",
 		"dev": "tsx watch src/index.ts",
-		"deploy": "tsx dist/deploy-commands.js",
 		"prepare": "husky",
 		"commit": "cz"
 	},

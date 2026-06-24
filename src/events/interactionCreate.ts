@@ -1,17 +1,45 @@
 import { Events, type Interaction, MessageFlags } from "discord.js";
 import type { ExtendedClient } from "../client.js";
 import type { BotEvent } from "../types/index.js";
+import {
+	checkAccess,
+	isOwner,
+	isRestrictiveModeEnabled,
+} from "../utils/access.js";
 import { errorContainer } from "../utils/components.js";
 import { logger } from "../utils/logger.js";
 
 const event: BotEvent<typeof Events.InteractionCreate> = {
 	name: Events.InteractionCreate,
 	execute: async (interaction: Interaction) => {
-		if (!interaction.isChatInputCommand()) return;
 		const client = interaction.client as ExtendedClient;
+
+		if (interaction.isAutocomplete()) {
+			const command = client.commands.get(interaction.commandName);
+			if (!command?.autocomplete) return;
+			try {
+				await command.autocomplete(interaction, client);
+			} catch (err) {
+				logger.error(
+					`Autocomplete error for /${interaction.commandName}: ${err}`,
+				);
+			}
+			return;
+		}
+
+		if (!interaction.isChatInputCommand()) return;
+
 		const command = client.commands.get(interaction.commandName);
 		if (!command) {
 			logger.warn(`Received unknown command: ${interaction.commandName}`);
+			return;
+		}
+
+		if (command.ownerOnly && !isOwner(interaction.user.id)) {
+			await interaction.reply({
+				components: [errorContainer("This command is owner-only.")],
+				flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+			});
 			return;
 		}
 
@@ -22,8 +50,13 @@ const event: BotEvent<typeof Events.InteractionCreate> = {
 				logger.error(
 					`Failed to defer /${command.data.name}: ${(deferErr as Error).message}`,
 				);
-				return; // interaction's already dead
+				return;
 			}
+		}
+
+		if (command.restrictive && isRestrictiveModeEnabled()) {
+			const allowed = await checkAccess(interaction);
+			if (!allowed) return;
 		}
 
 		try {

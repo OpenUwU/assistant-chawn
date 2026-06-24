@@ -1,4 +1,5 @@
 import type {
+	AutocompleteInteraction,
 	ChatInputCommandInteraction,
 	ClientEvents,
 	SlashCommandBuilder,
@@ -15,6 +16,12 @@ export type SlashCommandData =
 export interface Command {
 	data: SlashCommandData;
 	skipAutoDefer?: boolean;
+	ownerOnly?: boolean;
+	restrictive?: boolean;
+	autocomplete?: (
+		interaction: AutocompleteInteraction,
+		client: ExtendedClient,
+	) => Promise<void>;
 	execute: (
 		interaction: ChatInputCommandInteraction,
 		client: ExtendedClient,
