@@ -9,10 +9,6 @@ import type { Command } from "./types/index.js";
 
 export class ExtendedClient extends Client {
 	public readonly commands = new Collection<string, Command>();
-	public readonly cooldowns = new Collection<
-		string,
-		Collection<string, number>
-	>();
 
 	constructor() {
 		super({

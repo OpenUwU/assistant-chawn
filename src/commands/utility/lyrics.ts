@@ -5,10 +5,16 @@ import {
 	ButtonStyle,
 	ComponentType,
 	InteractionContextType,
+	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
 import type { Command } from "../../types/index.js";
-import { baseEmbed, errorEmbed } from "../../utils/components.js";
+import {
+	baseContainer,
+	errorContainer,
+	Separator,
+	TextDisplay,
+} from "../../utils/components.js";
 import {
 	formatSeconds,
 	LyricsFetcher,
@@ -28,6 +34,12 @@ const SOURCE_ORDER: LyricsSource[] = [
 	"genius",
 ];
 
+interface LyricsMeta {
+	title: string;
+	artist: string;
+	source: string;
+}
+
 function paginateLyrics(text: string): string[] {
 	const lines = text
 		.split("\n")
@@ -40,17 +52,18 @@ function paginateLyrics(text: string): string[] {
 	return pages.length ? pages : ["*No lyrics text returned.*"];
 }
 
-function buildLyricsEmbed(
+function buildLyricsContainer(
 	pages: string[],
 	index: number,
-	meta: { title: string; artist: string; source: string; synced: boolean },
+	meta: LyricsMeta,
 ) {
-	return baseEmbed()
-		.setTitle(`${meta.title} — ${meta.artist}`)
-		.setDescription(pages[index])
-		.setFooter({
-			text: `Source: ${meta.source}${meta.synced ? " (synced)" : " (plain)"} • Page ${index + 1}/${pages.length}`,
-		});
+	return baseContainer()
+		.addTextDisplayComponents(
+			TextDisplay(`**${meta.title} — ${meta.artist}**`),
+		)
+		.addSeparatorComponents(Separator())
+		.addTextDisplayComponents(TextDisplay(`>>> ${pages[index]}`))
+		.addTextDisplayComponents(TextDisplay(`-# Source: ${meta.source}`));
 }
 
 function buildPageButtons(index: number, total: number, disableAll = false) {
@@ -147,11 +160,12 @@ const command: Command = {
 			targetSeconds = parseDurationToSeconds(durationRaw);
 			if (targetSeconds === null) {
 				await interaction.editReply({
-					embeds: [
-						errorEmbed(
+					components: [
+						errorContainer(
 							"Invalid duration format — use `mm:ss`, e.g. `3:42`.",
 						),
 					],
+					flags: MessageFlags.IsComponentsV2,
 				});
 				return;
 			}
@@ -186,11 +200,12 @@ const command: Command = {
 			await showPicker(scored);
 		} catch {
 			await interaction.editReply({
-				embeds: [
-					errorEmbed(
+				components: [
+					errorContainer(
 						"Something went wrong fetching lyrics. Try again shortly.",
 					),
 				],
+				flags: MessageFlags.IsComponentsV2,
 			});
 		}
 
@@ -268,14 +283,14 @@ const command: Command = {
 			if (!result?.plain && !result?.synced) {
 				const remaining = SOURCE_ORDER.filter((s) => !tried.includes(s));
 				await interaction.editReply({
-					embeds: [
-						errorEmbed(
+					components: [
+						errorContainer(
 							remaining.length
 								? `No lyrics found from remaining sources (${remaining.join(", ")}).`
 								: "No lyrics found from any source.",
 						),
 					],
-					components: [],
+					flags: MessageFlags.IsComponentsV2,
 				});
 				return;
 			}
@@ -311,24 +326,36 @@ const command: Command = {
 			const pages = paginateLyrics(text);
 			let index = 0;
 
-			const extraRow = triedForMoreSources
-				? [
-						new ActionRowBuilder<ButtonBuilder>().addComponents(
-							new ButtonBuilder()
-								.setCustomId("lyrics_try_next_source")
-								.setLabel("Try next source")
-								.setStyle(ButtonStyle.Secondary),
-						),
-					]
-				: [];
+			const tryNextSourceRow = triedForMoreSources
+				? new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
+							.setCustomId("lyrics_try_next_source")
+							.setLabel("Try next source")
+							.setStyle(ButtonStyle.Secondary),
+					)
+				: null;
+
+			function buildComponents(currentIndex: number, disableAll = false) {
+				const container = buildLyricsContainer(pages, currentIndex, meta);
+
+				if (pages.length > 1) {
+					container.addActionRowComponents(
+						buildPageButtons(currentIndex, pages.length, disableAll),
+					);
+				}
+
+				if (tryNextSourceRow) {
+					container.addActionRowComponents(tryNextSourceRow);
+				}
+
+				return [container];
+			}
 
 			const response = await interaction.editReply({
 				content: "",
-				embeds: [buildLyricsEmbed(pages, index, meta)],
-				components:
-					pages.length > 1
-						? [buildPageButtons(index, pages.length), ...extraRow]
-						: extraRow,
+				embeds: [],
+				components: buildComponents(index),
+				flags: MessageFlags.IsComponentsV2,
 			});
 
 			if (pages.length === 1 && !triedForMoreSources) return;
@@ -349,6 +376,7 @@ const command: Command = {
 					await runOtherSourcesFlow(triedForMoreSources);
 					return;
 				}
+
 				if (i.customId === "lyrics_prev") index = Math.max(0, index - 1);
 				else if (i.customId === "lyrics_next")
 					index = Math.min(pages.length - 1, index + 1);
@@ -356,11 +384,9 @@ const command: Command = {
 
 				await i.update({
 					content: "",
-					embeds: [buildLyricsEmbed(pages, index, meta)],
-					components:
-						pages.length > 1
-							? [buildPageButtons(index, pages.length), ...extraRow]
-							: extraRow,
+					embeds: [],
+					components: buildComponents(index),
+					flags: MessageFlags.IsComponentsV2,
 				});
 			});
 
@@ -368,10 +394,8 @@ const command: Command = {
 				if (reason === "next_source") return;
 				try {
 					await interaction.editReply({
-						components:
-							pages.length > 1
-								? [buildPageButtons(index, pages.length, true)]
-								: [],
+						components: buildComponents(index, true),
+						flags: MessageFlags.IsComponentsV2,
 					});
 				} catch {
 					/* message may be gone */

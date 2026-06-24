@@ -1,12 +1,69 @@
 import {
+	ActionRowBuilder,
 	ApplicationIntegrationType,
+	ButtonBuilder,
+	ButtonStyle,
+	ComponentType,
 	InteractionContextType,
 	type Invite,
+	MediaGalleryBuilder,
+	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
 import type { ExtendedClient } from "../../client.js";
 import type { Command } from "../../types/index.js";
-import { baseEmbed, errorEmbed } from "../../utils/components.js";
+import {
+	baseContainer,
+	baseSection,
+	errorContainer,
+	Separator,
+	TextDisplay,
+	Thumbnail,
+} from "../../utils/components.js";
+
+const COLLECTOR_TIMEOUT_MS = 5 * 60 * 1000;
+
+// Feature categories
+const FEATURE_CATEGORIES: Record<string, string[]> = {
+	Verification: ["VERIFIED", "PARTNERED", "DEVELOPER_SUPPORT_SERVER"],
+	Discovery: [
+		"COMMUNITY",
+		"DISCOVERABLE",
+		"FEATURABLE",
+		"PREVIEW_ENABLED",
+		"WELCOME_SCREEN_ENABLED",
+	],
+	Monetization: [
+		"CREATOR_MONETIZABLE_PROVISIONAL",
+		"CREATOR_STORE_PAGE",
+		"ROLE_SUBSCRIPTIONS_ENABLED",
+		"ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE",
+		"TICKETED_EVENTS_ENABLED",
+	],
+	Cosmetics: [
+		"ANIMATED_BANNER",
+		"ANIMATED_ICON",
+		"BANNER",
+		"INVITE_SPLASH",
+		"ROLE_ICONS",
+		"ENHANCED_ROLE_COLORS",
+		"VANITY_URL",
+	],
+	Audio: ["VIP_REGIONS", "SOUNDBOARD", "MORE_SOUNDBOARD"],
+	Moderation: [
+		"AUTO_MODERATION",
+		"MEMBER_VERIFICATION_GATE_ENABLED",
+		"RAID_ALERTS_DISABLED",
+		"INVITES_DISABLED",
+	],
+	Other: [
+		"NEWS",
+		"MORE_STICKERS",
+		"GUESTS_ENABLED",
+		"GUILD_TAGS",
+		"APPLICATION_COMMAND_PERMISSIONS_V2",
+	],
+};
 
 const FEATURE_NAMES: Record<string, string> = {
 	ANIMATED_BANNER: "Animated Banner",
@@ -50,26 +107,46 @@ function isAnInvite(text: string): boolean {
 }
 
 function truncate(text: string, length: number): string {
-	if (text.length > length) {
-		return `${text.slice(0, length - 3)}...`;
-	}
+	if (text.length > length) return `${text.slice(0, length - 3)}...`;
 	return text;
 }
 
 function formatFeature(feature: string): string {
-	if (FEATURE_NAMES[feature]) return FEATURE_NAMES[feature];
-	return feature
-		.toLowerCase()
-		.split("_")
-		.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-		.join(" ");
+	return (
+		FEATURE_NAMES[feature] ??
+		feature
+			.toLowerCase()
+			.split("_")
+			.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+			.join(" ")
+	);
 }
 
-function formatFeatures(features: string[], max = 8): string {
-	if (features.length === 0) return "None";
-	const shown = features.slice(0, max).map(formatFeature);
-	const extra = features.length - max;
-	return shown.join(", ") + (extra > 0 ? `, +${extra} more` : "");
+function buildFeaturesPage(activeFeatures: string[]): string {
+	if (activeFeatures.length === 0) return "> None";
+
+	const activeSet = new Set(activeFeatures);
+	const lines: string[] = [];
+	const uncategorized: string[] = [];
+
+	for (const [category, keys] of Object.entries(FEATURE_CATEGORIES)) {
+		const matched = keys.filter((k) => activeSet.has(k));
+		if (matched.length === 0) continue;
+		lines.push(`**${category}**`);
+		for (const k of matched) {
+			lines.push(`> ${formatFeature(k)}`);
+			activeSet.delete(k);
+		}
+	}
+
+	// anything not in any category
+	for (const f of activeSet) uncategorized.push(f);
+	if (uncategorized.length) {
+		lines.push("**Misc**");
+		for (const f of uncategorized) lines.push(`> ${formatFeature(f)}`);
+	}
+
+	return lines.join("\n");
 }
 
 const command: Command = {
@@ -97,21 +174,15 @@ const command: Command = {
 			InteractionContextType.PrivateChannel,
 		),
 	execute: async (interaction) => {
-		const subcommand = interaction.options.getSubcommand(true);
 		const extClient = interaction.client as ExtendedClient;
-
-		if (subcommand !== "invite-info") {
-			await interaction.editReply({
-				embeds: [errorEmbed("Unknown subcommand.")],
-			});
-			return;
-		}
-
 		const invite = interaction.options.getString("invite", true);
 
 		if (!isAnInvite(invite)) {
 			await interaction.editReply({
-				embeds: [errorEmbed("That doesn't look like a valid invite link.")],
+				components: [
+					errorContainer("That doesn't look like a valid invite link."),
+				],
+				flags: MessageFlags.IsComponentsV2,
 			});
 			return;
 		}
@@ -121,64 +192,181 @@ const command: Command = {
 			inviteObj = await extClient.fetchInvite(invite);
 		} catch {
 			await interaction.editReply({
-				embeds: [errorEmbed("That doesn't look like a valid invite link.")],
+				components: [
+					errorContainer("That doesn't look like a valid invite link."),
+				],
+				flags: MessageFlags.IsComponentsV2,
 			});
 			return;
 		}
 
 		const guild = inviteObj.guild;
-		const banner = guild?.bannerURL({ size: 1024 }) ?? null;
-		const avatar = guild?.iconURL() ?? null;
+		const activeFeatures = guild?.features ?? [];
+		const hasFeatures = activeFeatures.length > 0;
 
-		const embed = baseEmbed()
-			.setTitle(guild?.name ?? "Unknown")
-			.setURL(invite)
-			.setDescription(truncate(guild?.description ?? "None", 2048))
-			.addFields(
-				{
-					name: "Server ID",
-					value: `${guild?.id}`,
-					inline: true,
-				},
-				{
-					name: "Boost Count",
-					value: `${guild?.premiumSubscriptionCount ?? 0}`,
-					inline: true,
-				},
-				{
-					name: "Verification Level",
-					value: `${guild?.verificationLevel ?? "None"}`,
-					inline: true,
-				},
-				{
-					name: "Vanity URL",
-					value: guild?.vanityURLCode ?? "None",
-					inline: true,
-				},
-				{
-					name: "Member Count",
-					value: `${inviteObj.memberCount ?? "Unknown"}`,
-					inline: true,
-				},
-				{
-					name: "Online Count",
-					value: `${inviteObj.presenceCount ?? "Unknown"}`,
-					inline: true,
-				},
-				{
-					name: "Features",
-					value: formatFeatures(guild?.features ?? []),
-				},
+		// page 0 = info, page 1 = features
+		let page = 0;
+		const TOTAL_PAGES = hasFeatures ? 2 : 1;
+
+		const iconURL = guild?.iconURL() ?? null;
+		const bannerURL = guild?.bannerURL({ size: 1024 }) ?? null;
+		const description = truncate(guild?.description ?? "None", 1024);
+		const vanity = guild?.vanityURLCode ?? "None";
+
+		const infoText = [
+			`> **Server ID:** \`${guild?.id ?? "Unknown"}\``,
+			`> **Members:** ${inviteObj.memberCount ?? "Unknown"} (${inviteObj.presenceCount ?? "?"} online)`,
+			`> **Boosts:** ${guild?.premiumSubscriptionCount ?? 0}`,
+			`> **Verification:** ${guild?.verificationLevel ?? "None"}`,
+			`> **Vanity URL:** ${vanity}`,
+			`> **Features:** ${activeFeatures.length}`,
+		].join("\n");
+
+		function buildInfoPage() {
+			const section = baseSection().addTextDisplayComponents(
+				TextDisplay(`### ${guild?.name ?? "Unknown"}`),
+				TextDisplay(`>>> ${description}`),
+				TextDisplay(infoText),
 			);
 
-		if (banner) {
-			embed.setImage(banner);
-		} else if (avatar) {
-			embed.setThumbnail(avatar);
+			if (iconURL)
+				section.setThumbnailAccessory(Thumbnail("server icon", iconURL));
+
+			const container = baseContainer().addSectionComponents(section);
+
+			if (bannerURL)
+				container.addMediaGalleryComponents(
+					new MediaGalleryBuilder().addItems((media) =>
+						media.setDescription("server banner").setURL(bannerURL),
+					),
+				);
+
+			if (hasFeatures)
+				container
+					.addSeparatorComponents(Separator())
+					.addActionRowComponents(
+						new ActionRowBuilder<ButtonBuilder>().addComponents(
+							new ButtonBuilder()
+								.setCustomId("server_features")
+								.setLabel("View Features")
+								.setStyle(ButtonStyle.Secondary),
+						),
+					);
+
+			return container;
 		}
 
-		await interaction.editReply({
-			embeds: [embed],
+		function buildFeaturesPageContainer() {
+			const container = baseContainer()
+				.addTextDisplayComponents(
+					TextDisplay(`### ${guild?.name ?? "Unknown"} — Features`),
+				)
+				.addSeparatorComponents(Separator())
+				.addTextDisplayComponents(
+					TextDisplay(buildFeaturesPage(activeFeatures)),
+				)
+				.addSeparatorComponents(Separator())
+				.addActionRowComponents(
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
+							.setCustomId("server_info")
+							.setLabel("Back to Info")
+							.setStyle(ButtonStyle.Secondary),
+					),
+				);
+
+			return container;
+		}
+
+		function buildPage(disableAll = false) {
+			const container =
+				page === 0 ? buildInfoPage() : buildFeaturesPageContainer();
+
+			if (disableAll) {
+				if (page === 0 && hasFeatures) {
+					const section = baseSection().addTextDisplayComponents(
+						TextDisplay(`### ${guild?.name ?? "Unknown"}`),
+						TextDisplay(`>>> ${description}`),
+						TextDisplay(infoText),
+					);
+					if (iconURL)
+						section.setThumbnailAccessory(
+							Thumbnail("server icon", iconURL),
+						);
+					const c = baseContainer().addSectionComponents(section);
+					if (bannerURL)
+						c.addMediaGalleryComponents(
+							new MediaGalleryBuilder().addItems((media) =>
+								media.setDescription("server banner").setURL(bannerURL),
+							),
+						);
+					c.addSeparatorComponents(Separator()).addActionRowComponents(
+						new ActionRowBuilder<ButtonBuilder>().addComponents(
+							new ButtonBuilder()
+								.setCustomId("server_features")
+								.setLabel("View Features")
+								.setStyle(ButtonStyle.Secondary)
+								.setDisabled(true),
+						),
+					);
+					return c;
+				} else if (page === 1) {
+					return baseContainer()
+						.addTextDisplayComponents(
+							TextDisplay(`### ${guild?.name ?? "Unknown"} — Features`),
+						)
+						.addSeparatorComponents(Separator())
+						.addTextDisplayComponents(
+							TextDisplay(buildFeaturesPage(activeFeatures)),
+						)
+						.addSeparatorComponents(Separator())
+						.addActionRowComponents(
+							new ActionRowBuilder<ButtonBuilder>().addComponents(
+								new ButtonBuilder()
+									.setCustomId("server_info")
+									.setLabel("Back to Info")
+									.setStyle(ButtonStyle.Secondary)
+									.setDisabled(true),
+							),
+						);
+				}
+			}
+			return container;
+		}
+
+		const response = await interaction.editReply({
+			components: [buildPage()],
+			flags: MessageFlags.IsComponentsV2,
+		});
+
+		if (TOTAL_PAGES === 1) return;
+
+		const collector = response.createMessageComponentCollector({
+			componentType: ComponentType.Button,
+			filter: (i) => i.user.id === interaction.user.id,
+			time: COLLECTOR_TIMEOUT_MS,
+		});
+
+		collector.on("collect", async (i) => {
+			if (i.customId === "server_features") page = 1;
+			else if (i.customId === "server_info") page = 0;
+			else return;
+
+			await i.update({
+				components: [buildPage()],
+				flags: MessageFlags.IsComponentsV2,
+			});
+		});
+
+		collector.on("end", async () => {
+			try {
+				await interaction.editReply({
+					components: [buildPage(true)],
+					flags: MessageFlags.IsComponentsV2,
+				});
+			} catch {
+				/* message may be gone */
+			}
 		});
 	},
 };

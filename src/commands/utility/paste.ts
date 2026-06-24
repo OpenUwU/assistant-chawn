@@ -5,10 +5,11 @@ import {
 	ButtonBuilder,
 	ButtonStyle,
 	InteractionContextType,
+	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
 import type { Command } from "../../types/index.js";
-import { errorEmbed } from "../../utils/components.js";
+import { errorContainer } from "../../utils/components.js";
 
 const API_URL = "https://sourceb.in/api";
 
@@ -146,7 +147,10 @@ const command: Command = {
 
 		if (text.length > 25000) {
 			await interaction.editReply({
-				embeds: [errorEmbed("Text is too long (max 25,000 characters).")],
+				components: [
+					errorContainer("Text is too long (max 25,000 characters)."),
+				],
+				flags: MessageFlags.IsComponentsV2,
 			});
 			return;
 		}
@@ -160,7 +164,8 @@ const command: Command = {
 
 				if (!res.ok) {
 					await interaction.editReply({
-						embeds: [errorEmbed("Failed to create paste.")],
+						components: [errorContainer("Failed to create paste.")],
+						flags: MessageFlags.IsComponentsV2,
 					});
 					return;
 				}
@@ -179,7 +184,8 @@ const command: Command = {
 				});
 			} catch {
 				await interaction.editReply({
-					embeds: [errorEmbed("Failed to create paste.")],
+					components: [errorContainer("Failed to create paste.")],
+					flags: MessageFlags.IsComponentsV2,
 				});
 			}
 			return;
@@ -204,13 +210,17 @@ const command: Command = {
 			} catch (err) {
 				const message =
 					err instanceof Error ? err.message : "Failed to create paste.";
-				await interaction.editReply({ embeds: [errorEmbed(message)] });
+				await interaction.editReply({
+					components: [errorContainer(message)],
+					flags: MessageFlags.IsComponentsV2,
+				});
 			}
 			return;
 		}
 
 		await interaction.editReply({
-			embeds: [errorEmbed("Unknown subcommand.")],
+			components: [errorContainer("Unknown subcommand.")],
+			flags: MessageFlags.IsComponentsV2,
 		});
 	},
 };

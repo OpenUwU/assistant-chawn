@@ -4,7 +4,6 @@ import {
 	SlashCommandBuilder,
 } from "discord.js";
 import type { Command } from "../../types/index.js";
-import { baseEmbed } from "../../utils/components.js";
 
 const command: Command = {
 	data: new SlashCommandBuilder()
@@ -23,15 +22,13 @@ const command: Command = {
 	execute: async (interaction, client) => {
 		const start = Date.now();
 		const roundtrip = Date.now() - start;
-
-		const embed = baseEmbed()
-			.setTitle("Pong!")
-			.addFields(
-				{ name: "Roundtrip", value: `${roundtrip}ms`, inline: true },
-				{ name: "WebSocket", value: `${client.ws.ping}ms`, inline: true },
-			);
-
-		await interaction.editReply({ embeds: [embed] });
+		let MsgContent = `>>> 🏓 Pong! \n Websocket: ${client.ws.ping}ms (Roundtrip: ${roundtrip}ms) `;
+		if (client.readyTimestamp) {
+			MsgContent += `\n Ready since  <t:${Math.floor(client.readyTimestamp / 1000)}:F>`;
+		}
+		await interaction.editReply({
+			content: MsgContent,
+		});
 	},
 };
 
