@@ -14,6 +14,7 @@ import {
 	isRestrictiveModeEnabled,
 } from "../utils/access.js";
 import { errorContainer } from "../utils/components.js";
+import { applyCooldown, getRemainingCooldown } from "../utils/cooldown.js";
 import { logger } from "../utils/logger.js";
 
 const event: BotEvent<typeof Events.InteractionCreate> = {
@@ -42,12 +43,30 @@ const event: BotEvent<typeof Events.InteractionCreate> = {
 			return;
 		}
 
-		if (command.ownerOnly && !isOwner(interaction.user.id)) {
+		const owner = isOwner(interaction.user.id);
+
+		if (command.ownerOnly && !owner) {
 			await interaction.reply({
 				components: [errorContainer("This command is owner-only.")],
 				flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
 			});
 			return;
+		}
+
+		if (!owner) {
+			const remaining = getRemainingCooldown(interaction.user.id);
+			if (remaining > 0) {
+				await interaction.reply({
+					components: [
+						errorContainer(
+							`Slow down — try again in ${(remaining / 1000).toFixed(1)}s.`,
+						),
+					],
+					flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+				});
+				return;
+			}
+			applyCooldown(interaction.user.id);
 		}
 
 		if (!command.skipAutoDefer) {
