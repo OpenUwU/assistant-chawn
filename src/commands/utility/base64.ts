@@ -6,17 +6,18 @@
  */
 
 import {
-	ActionRowBuilder,
 	ApplicationIntegrationType,
-	ButtonBuilder,
-	ButtonStyle,
 	ComponentType,
 	InteractionContextType,
 	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
 import type { Command } from "../../types/index.js";
-import { errorContainer } from "../../utils/components.js";
+import {
+	ActionRow,
+	errorContainer,
+	secondaryButton,
+} from "../../utils/components.js";
 
 const CODEBLOCK_OVERHEAD = "```text\n\n```".length;
 const PAGE_LIMIT = 2000 - CODEBLOCK_OVERHEAD;
@@ -56,25 +57,14 @@ function buildContent(pages: string[], index: number): string {
 
 function buildRow(pages: string[], index: number, disableAll = false) {
 	const total = pages.length;
-	const prev = new ButtonBuilder()
-		.setCustomId("b64_prev")
-		.setLabel("prev")
-		.setStyle(ButtonStyle.Secondary)
-		.setDisabled(disableAll || index === 0);
-
-	const page = new ButtonBuilder()
-		.setCustomId("b64_page")
-		.setLabel(`${index + 1}/${total}`)
-		.setStyle(ButtonStyle.Secondary)
-		.setDisabled(true);
-
-	const next = new ButtonBuilder()
-		.setCustomId("b64_next")
-		.setLabel("next")
-		.setStyle(ButtonStyle.Secondary)
-		.setDisabled(disableAll || index === total - 1);
-
-	return new ActionRowBuilder<ButtonBuilder>().addComponents(prev, page, next);
+	const prev = secondaryButton("prev", "b64_prev", disableAll || index === 0);
+	const page = secondaryButton(`${index + 1}/${total}`, "b64_page", true);
+	const next = secondaryButton(
+		"next",
+		"b64_next",
+		disableAll || index === total - 1,
+	);
+	return ActionRow().addComponents(prev, page, next);
 }
 
 async function replyPaginated(

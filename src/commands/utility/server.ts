@@ -6,10 +6,7 @@
  */
 
 import {
-	ActionRowBuilder,
 	ApplicationIntegrationType,
-	ButtonBuilder,
-	ButtonStyle,
 	ComponentType,
 	InteractionContextType,
 	type Invite,
@@ -20,10 +17,12 @@ import {
 import type { ExtendedClient } from "../../client.js";
 import type { Command } from "../../types/index.js";
 import {
+	ActionRow,
 	baseContainer,
 	baseSection,
 	errorContainer,
 	Separator,
+	secondaryButton,
 	TextDisplay,
 	Thumbnail,
 } from "../../utils/components.js";
@@ -252,11 +251,8 @@ const command: Command = {
 				container
 					.addSeparatorComponents(Separator())
 					.addActionRowComponents(
-						new ActionRowBuilder<ButtonBuilder>().addComponents(
-							new ButtonBuilder()
-								.setCustomId("server_features")
-								.setLabel("View Features")
-								.setStyle(ButtonStyle.Secondary),
+						ActionRow().addComponents(
+							secondaryButton("View Features", "server_features", true),
 						),
 					);
 
@@ -274,11 +270,8 @@ const command: Command = {
 				)
 				.addSeparatorComponents(Separator())
 				.addActionRowComponents(
-					new ActionRowBuilder<ButtonBuilder>().addComponents(
-						new ButtonBuilder()
-							.setCustomId("server_info")
-							.setLabel("Back to Info")
-							.setStyle(ButtonStyle.Secondary),
+					ActionRow().addComponents(
+						secondaryButton("Back to Info", "server_info", true),
 					),
 				);
 
@@ -308,12 +301,8 @@ const command: Command = {
 							),
 						);
 					c.addSeparatorComponents(Separator()).addActionRowComponents(
-						new ActionRowBuilder<ButtonBuilder>().addComponents(
-							new ButtonBuilder()
-								.setCustomId("server_features")
-								.setLabel("View Features")
-								.setStyle(ButtonStyle.Secondary)
-								.setDisabled(true),
+						ActionRow().addComponents(
+							secondaryButton("View Features", "server_features", true),
 						),
 					);
 					return c;
@@ -328,12 +317,8 @@ const command: Command = {
 						)
 						.addSeparatorComponents(Separator())
 						.addActionRowComponents(
-							new ActionRowBuilder<ButtonBuilder>().addComponents(
-								new ButtonBuilder()
-									.setCustomId("server_info")
-									.setLabel("Back to Info")
-									.setStyle(ButtonStyle.Secondary)
-									.setDisabled(true),
+							ActionRow().addComponents(
+								secondaryButton("Back to Info", "server_info", true),
 							),
 						);
 				}

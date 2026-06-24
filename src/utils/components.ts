@@ -73,38 +73,58 @@ export function baseButton(): ButtonBuilder {
 }
 
 export function linkButton(label: string, url: string): ButtonBuilder {
-	return new ButtonBuilder().setLabel(label).setURL(url);
+	return new ButtonBuilder()
+		.setLabel(label)
+		.setURL(url)
+		.setStyle(ButtonStyle.Link);
 }
 
-export function primaryButton(label: string, customId: string): ButtonBuilder {
+export function primaryButton(
+	label: string,
+	customId: string,
+	disabled = false,
+): ButtonBuilder {
 	return new ButtonBuilder()
 		.setLabel(label)
 		.setStyle(ButtonStyle.Primary)
-		.setCustomId(customId);
+		.setCustomId(customId)
+		.setDisabled(disabled);
 }
 
 export function secondaryButton(
 	label: string,
 	customId: string,
+	disabled = false,
 ): ButtonBuilder {
 	return new ButtonBuilder()
 		.setLabel(label)
 		.setStyle(ButtonStyle.Secondary)
-		.setCustomId(customId);
+		.setCustomId(customId)
+		.setDisabled(disabled);
 }
 
-export function successButton(label: string, customId: string): ButtonBuilder {
+export function successButton(
+	label: string,
+	customId: string,
+	disabled = false,
+): ButtonBuilder {
 	return new ButtonBuilder()
 		.setLabel(label)
 		.setStyle(ButtonStyle.Success)
-		.setCustomId(customId);
+		.setCustomId(customId)
+		.setDisabled(disabled);
 }
 
-export function dangerButton(label: string, customId: string): ButtonBuilder {
+export function dangerButton(
+	label: string,
+	customId: string,
+	disabled = false,
+): ButtonBuilder {
 	return new ButtonBuilder()
 		.setLabel(label)
 		.setStyle(ButtonStyle.Danger)
-		.setCustomId(customId);
+		.setCustomId(customId)
+		.setDisabled(disabled);
 }
 
 export function ActionRow(): ActionRowBuilder<MessageActionRowComponentBuilder> {

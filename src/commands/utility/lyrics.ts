@@ -6,10 +6,7 @@
  */
 
 import {
-	ActionRowBuilder,
 	ApplicationIntegrationType,
-	ButtonBuilder,
-	ButtonStyle,
 	ComponentType,
 	InteractionContextType,
 	MessageFlags,
@@ -17,9 +14,12 @@ import {
 } from "discord.js";
 import type { Command } from "../../types/index.js";
 import {
+	ActionRow,
 	baseContainer,
 	errorContainer,
+	primaryButton,
 	Separator,
+	secondaryButton,
 	TextDisplay,
 } from "../../utils/components.js";
 import {
@@ -74,25 +74,18 @@ function buildLyricsContainer(
 }
 
 function buildPageButtons(index: number, total: number, disableAll = false) {
-	const prev = new ButtonBuilder()
-		.setCustomId("lyrics_prev")
-		.setLabel("prev")
-		.setStyle(ButtonStyle.Secondary)
-		.setDisabled(disableAll || index === 0);
-
-	const page = new ButtonBuilder()
-		.setCustomId("lyrics_page")
-		.setLabel(`${index + 1}/${total}`)
-		.setStyle(ButtonStyle.Secondary)
-		.setDisabled(true);
-
-	const next = new ButtonBuilder()
-		.setCustomId("lyrics_next")
-		.setLabel("next")
-		.setStyle(ButtonStyle.Secondary)
-		.setDisabled(disableAll || index === total - 1);
-
-	return new ActionRowBuilder<ButtonBuilder>().addComponents(prev, page, next);
+	const prev = secondaryButton(
+		"prev",
+		"lyrics_prev",
+		disableAll || index === 0,
+	);
+	const page = secondaryButton(`${index + 1}/${total}`, "lyrics_page", true);
+	const next = secondaryButton(
+		"next",
+		"lyrics_next",
+		disableAll || index === total - 1,
+	);
+	return ActionRow().addComponents(prev, page, next);
 }
 
 function truncateLabel(text: string, max = 75): string {
@@ -110,23 +103,18 @@ function buildPickerRows(
 			targetSeconds !== null ? ` ${Math.round(c.score)}%` : "";
 		const label = `${i + 1}. ${c.trackName} — ${c.artistName} [${dur}]${scoreText}`;
 
-		return new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setCustomId(`lyrics_pick_${i}`)
-				.setLabel(truncateLabel(label, 80))
-				.setStyle(ButtonStyle.Primary)
-				.setDisabled(disableAll),
+		return ActionRow().addComponents(
+			primaryButton(truncateLabel(label), `lyrics_pick_${i}`, disableAll),
 		);
 	});
 
-	const otherRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-		new ButtonBuilder()
-			.setCustomId("lyrics_other_sources")
-			.setLabel("Search other sources")
-			.setStyle(ButtonStyle.Secondary)
-			.setDisabled(disableAll),
+	const otherRow = ActionRow().addComponents(
+		secondaryButton(
+			"Search other sources",
+			"lyrics_other_sources",
+			disableAll,
+		),
 	);
-
 	return [...pickRows, otherRow];
 }
 
@@ -332,13 +320,9 @@ const command: Command = {
 		) {
 			const pages = paginateLyrics(text);
 			let index = 0;
-
 			const tryNextSourceRow = triedForMoreSources
-				? new ActionRowBuilder<ButtonBuilder>().addComponents(
-						new ButtonBuilder()
-							.setCustomId("lyrics_try_next_source")
-							.setLabel("Try next source")
-							.setStyle(ButtonStyle.Secondary),
+				? ActionRow().addComponents(
+						secondaryButton("Try next source", "lyrics_try_next_source"),
 					)
 				: null;
 

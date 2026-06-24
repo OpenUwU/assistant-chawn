@@ -6,10 +6,7 @@
  */
 
 import {
-	ActionRowBuilder,
 	ApplicationIntegrationType,
-	ButtonBuilder,
-	ButtonStyle,
 	ComponentType,
 	InteractionContextType,
 	MessageFlags,
@@ -17,9 +14,12 @@ import {
 } from "discord.js";
 import type { Command } from "../../types/index.js";
 import {
+	ActionRow,
 	baseContainer,
 	errorContainer,
+	linkButton,
 	Separator,
+	secondaryButton,
 	TextDisplay,
 } from "../../utils/components.js";
 import { fetchJson } from "../../utils/http.js";
@@ -78,35 +78,15 @@ function buildButtons(
 	permalink: string,
 	disableAll = false,
 ) {
-	const prev = new ButtonBuilder()
-		.setCustomId("ud_prev")
-		.setLabel("prev")
-		.setStyle(ButtonStyle.Secondary)
-		.setDisabled(disableAll || index === 0);
-
-	const page = new ButtonBuilder()
-		.setCustomId("ud_page")
-		.setLabel(`${index + 1}/${total}`)
-		.setStyle(ButtonStyle.Secondary)
-		.setDisabled(true);
-
-	const next = new ButtonBuilder()
-		.setCustomId("ud_next")
-		.setLabel("next")
-		.setStyle(ButtonStyle.Secondary)
-		.setDisabled(disableAll || index === total - 1);
-
-	const link = new ButtonBuilder()
-		.setLabel("Link")
-		.setStyle(ButtonStyle.Link)
-		.setURL(permalink);
-
-	return new ActionRowBuilder<ButtonBuilder>().addComponents(
-		prev,
-		page,
-		next,
-		link,
+	const prev = secondaryButton("prev", "ud_prev", disableAll || index === 0);
+	const page = secondaryButton(`${index + 1}/${total}`, "ud_page", true);
+	const next = secondaryButton(
+		"next",
+		"ud_next",
+		disableAll || index === total - 1,
 	);
+	const link = linkButton("link", permalink);
+	return ActionRow().addComponents(prev, page, next, link);
 }
 
 const command: Command = {

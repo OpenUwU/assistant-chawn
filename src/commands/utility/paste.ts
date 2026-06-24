@@ -7,16 +7,17 @@
 
 import { linguist, type SourcebinLinguistItem } from "@sourcebin/linguist";
 import {
-	ActionRowBuilder,
 	ApplicationIntegrationType,
-	ButtonBuilder,
-	ButtonStyle,
 	InteractionContextType,
 	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
 import type { Command } from "../../types/index.js";
-import { errorContainer } from "../../utils/components.js";
+import {
+	ActionRow,
+	errorContainer,
+	linkButton,
+} from "../../utils/components.js";
 
 const API_URL = "https://sourceb.in/api";
 
@@ -181,12 +182,7 @@ const command: Command = {
 
 				await interaction.editReply({
 					components: [
-						new ActionRowBuilder<ButtonBuilder>().addComponents(
-							new ButtonBuilder()
-								.setStyle(ButtonStyle.Link)
-								.setLabel("paste.rs")
-								.setURL(url),
-						),
+						ActionRow().addComponents(linkButton("paste.rs", url)),
 					],
 				});
 			} catch {
@@ -206,12 +202,7 @@ const command: Command = {
 				const bin = await createSourcebin(text, language, title);
 				await interaction.editReply({
 					components: [
-						new ActionRowBuilder<ButtonBuilder>().addComponents(
-							new ButtonBuilder()
-								.setStyle(ButtonStyle.Link)
-								.setLabel("sourceb.in")
-								.setURL(bin.url),
-						),
+						ActionRow().addComponents(linkButton("sourceb.in", bin.url)),
 					],
 				});
 			} catch (err) {
