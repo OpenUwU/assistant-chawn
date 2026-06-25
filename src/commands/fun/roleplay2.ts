@@ -1,3 +1,10 @@
+/**
+ * Credits: The OpenUwU Project
+ * Author:  @bre4d777 and collaborators
+ * Project: Assistant Chawn
+ * github.com/openUwU/assistant-chawn
+ */
+
 import {
 	ApplicationIntegrationType,
 	ComponentType,
@@ -92,7 +99,9 @@ const command: Command = {
 					components: [buildContainer(text, action, currentNum, true)],
 					flags: MessageFlags.IsComponentsV2,
 				})
-				.catch(() => {});
+				.catch(() => {
+					// message was deleted
+				});
 		});
 	},
 };

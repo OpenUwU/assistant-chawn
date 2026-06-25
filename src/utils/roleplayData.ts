@@ -1,3 +1,10 @@
+/**
+ * Credits: The OpenUwU Project
+ * Author:  @bre4d777 and collaborators
+ * Project: Assistant Chawn
+ * github.com/openUwU/assistant-chawn
+ */
+
 import { MediaGalleryBuilder } from "discord.js";
 import {
 	ActionRow,
@@ -9,7 +16,7 @@ import {
 
 export const BASE_URL =
 	"https://raw.githubusercontent.com/bre4d777/anime-gifs/master";
-
+// github.com/bre4d777/anime-gifs/tree/master/index.json
 export const CATEGORIES: Record<string, number> = {
 	airkiss: 6,
 	angrystare: 32,
