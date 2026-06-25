@@ -7,7 +7,7 @@
 
 import type { ChatInputCommandInteraction } from "discord.js";
 import { MessageFlags } from "discord.js";
-import { hasAccess } from "../db/accessStore.js";
+import { hasAccess } from "../db/index.js";
 import { errorContainer } from "./components.js";
 
 export function getOwnerIds(): Set<string> {

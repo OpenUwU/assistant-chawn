@@ -27,6 +27,8 @@ A lightweight, Discord bot built with discord.js and TypeScript. Designed to run
 - **TypeScript** (compiled with `tsc`, dev via `tsx watch`)
 - **[Biome](https://biomejs.dev/)** — linting & formatting
 - **Husky + lint-staged + commitlint + commitizen** — git hooks and conventional commits
+- **[Postgres](https://www.postgresql.org/)** — database
+- **[Redis](https://redis.io/)** — cache
 
 ## Prerequisites
 
@@ -45,8 +47,9 @@ Create a `.env` file in the project root:
 
 ```env
 DISCORD_TOKEN=
-CLIENT_ID=
 OWNER_IDS=
+DATABASE_URL=
+REDIS_URL=
 
 # Optional
 RESTRICTIVE_MODE=false
@@ -55,12 +58,14 @@ ERROR_COLOR=
 DEBUG=false
 NVIDIA_API_KEY=
 GROQ_API_KEY=
+OWNER_GUILDS=
 ```
 
 | Variable            | Description                                       | Required |
 |----------------------|----------------------------------------------------|----------|
 | `DISCORD_TOKEN`      | Discord bot token                                  | Yes      |
-| `CLIENT_ID`          | Discord application client ID                      | Yes      |
+| DATABASE_URL         | Postgres connection string | Yes |
+| REDIS_URL            | Redis connection string | Yes |
 | `OWNER_IDS`          | Comma-separated user IDs treated as bot owners      | Yes      |
 | `RESTRICTIVE_MODE`   | When `true`, owner-managed access gates commands flagged `restrictive` | No |
 | `BRAND_COLOR`        | Hex int used for default embed/container accent     | No       |
@@ -68,6 +73,7 @@ GROQ_API_KEY=
 | `DEBUG`              | When `true`, enables debug-level logs               | No       |
 | `NVIDIA_API_KEY`     | API key for NVIDIA API (ai chats)                            | No       |
 | `GROQ_API_KEY`       | API key for GROQ API (ai chats)                              | No       |
+| `OWNER_GUILDS`       | Comma-separated guild IDs where dev commands are deployed | No |
 
 ## Running
 

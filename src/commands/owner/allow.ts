@@ -5,17 +5,13 @@
  * github.com/openUwU/assistant-chawn
  */
 
-import {
-	ApplicationIntegrationType,
-	InteractionContextType,
-	MessageFlags,
-	SlashCommandBuilder,
-} from "discord.js";
+import { MessageFlags, SlashCommandBuilder } from "discord.js";
 import {
 	grantAccess,
+	hasAccess,
 	listAuthorized,
 	revokeAccess,
-} from "../../db/accessStore.js";
+} from "../../db/stores/access.js";
 import type { Command } from "../../types/index.js";
 import { isRestrictiveModeEnabled } from "../../utils/access.js";
 import {
@@ -54,12 +50,6 @@ const command: Command = {
 		)
 		.addSubcommand((sub) =>
 			sub.setName("list").setDescription("List all authorized users."),
-		)
-		.setIntegrationTypes(ApplicationIntegrationType.UserInstall)
-		.setContexts(
-			InteractionContextType.Guild,
-			InteractionContextType.BotDM,
-			InteractionContextType.PrivateChannel,
 		),
 
 	execute: async (interaction) => {
@@ -98,6 +88,15 @@ const command: Command = {
 
 		if (sub === "revoke") {
 			const target = interaction.options.getUser("user", true);
+			if (!(await hasAccess(target.id))) {
+				await interaction.editReply({
+					components: [
+						errorContainer("Lmao this user does not have access."),
+					],
+					flags: MessageFlags.IsComponentsV2,
+				});
+				return;
+			}
 			await revokeAccess(target.id);
 			await interaction.editReply({
 				components: [

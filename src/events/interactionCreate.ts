@@ -54,7 +54,7 @@ const event: BotEvent<typeof Events.InteractionCreate> = {
 		}
 
 		if (!owner) {
-			const remaining = getRemainingCooldown(interaction.user.id);
+			const remaining = await getRemainingCooldown(interaction.user.id);
 			if (remaining > 0) {
 				await interaction.reply({
 					components: [
@@ -66,7 +66,7 @@ const event: BotEvent<typeof Events.InteractionCreate> = {
 				});
 				return;
 			}
-			applyCooldown(interaction.user.id);
+			await applyCooldown(interaction.user.id);
 		}
 
 		if (!command.skipAutoDefer) {

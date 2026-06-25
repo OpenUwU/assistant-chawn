@@ -15,7 +15,9 @@
 		"dev": "tsx watch src/index.ts",
 		"prepare": "husky",
 		"add-headers": "node scripts/add-header.js",
-		"commit": "cz"
+		"commit": "cz",
+		"migrate": "tsx scripts/migrate.ts",
+		"migrate:dry": "tsx scripts/migrate.ts --dry"
 	},
 	"lint-staged": {
 		"*.{ts,js}": [
@@ -28,6 +30,8 @@
 		"@sourcebin/linguist": "^0.0.3",
 		"discord.js": "^14.16.3",
 		"dotenv": "^16.4.5",
+		"ioredis": "^5.11.1",
+		"pg": "^8.22.0",
 		"qr": "^0.6.0",
 		"sharp": "^0.35.2"
 	},
@@ -35,6 +39,7 @@
 		"@commitlint/cli": "^21.0.2",
 		"@commitlint/config-conventional": "^21.0.2",
 		"@types/node": "^22.7.5",
+		"@types/pg": "^8.20.0",
 		"commitizen": "^4.3.2",
 		"cz-conventional-changelog": "^3.3.0",
 		"husky": "^9.1.7",

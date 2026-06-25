@@ -5,32 +5,26 @@
  * github.com/openUwU/assistant-chawn
  */
 
+import { getRedis } from "../db/redis.js";
+
 const COOLDOWN_MS = 5000;
-const SWEEP_INTERVAL_MS = 60_000;
+export async function getRemainingCooldown(userId: string): Promise<number> {
+	const raw = await getRedis().get(`cooldown:${userId}`);
+	if (!raw) return 0;
 
-const expiries = new Map<string, number>();
-
-export function getRemainingCooldown(userId: string): number {
-	const expiresAt = expiries.get(userId);
-	if (!expiresAt) return 0;
+	const expiresAt = Number(raw);
+	if (Number.isNaN(expiresAt)) return 0;
 
 	const remaining = expiresAt - Date.now();
-	if (remaining <= 0) {
-		expiries.delete(userId);
-		return 0;
-	}
-	return remaining;
+	return remaining > 0 ? remaining : 0;
 }
 
-export function applyCooldown(userId: string): void {
-	expiries.set(userId, Date.now() + COOLDOWN_MS);
+export async function applyCooldown(userId: string): Promise<"OK"> {
+	const expiresAt = Date.now() + COOLDOWN_MS;
+	return await getRedis().set(
+		`cooldown:${userId}`,
+		String(expiresAt),
+		"PX",
+		COOLDOWN_MS,
+	);
 }
-
-const sweeper = setInterval(() => {
-	const now = Date.now();
-	for (const [userId, expiresAt] of expiries) {
-		if (expiresAt <= now) expiries.delete(userId);
-	}
-}, SWEEP_INTERVAL_MS);
-
-sweeper.unref();
