@@ -14,7 +14,7 @@
 
 # Assistant Chawn
 
-A lightweight, user-installable Discord bot built with discord.js and TypeScript. Designed to run as a personal/utility install (works in servers, DMs, and group chats via Discord's user-install) .
+A lightweight, Discord bot built with discord.js and TypeScript. Designed to run as a personal/utility install (works in servers, DMs, and group chats via Discord's user-install) .
 
 ## Features
 
@@ -53,6 +53,8 @@ RESTRICTIVE_MODE=false
 BRAND_COLOR=
 ERROR_COLOR=
 DEBUG=false
+NVIDIA_API_KEY=
+GROQ_API_KEY=
 ```
 
 | Variable            | Description                                       | Required |
@@ -64,6 +66,8 @@ DEBUG=false
 | `BRAND_COLOR`        | Hex int used for default embed/container accent     | No       |
 | `ERROR_COLOR`        | Hex int used for error embed/container accent        | No       |
 | `DEBUG`              | When `true`, enables debug-level logs               | No       |
+| `NVIDIA_API_KEY`     | API key for NVIDIA API (ai chats)                            | No       |
+| `GROQ_API_KEY`       | API key for GROQ API (ai chats)                              | No       |
 
 ## Running
 

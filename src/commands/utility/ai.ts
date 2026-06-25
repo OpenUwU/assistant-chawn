@@ -7,6 +7,7 @@
 
 import {
 	ApplicationIntegrationType,
+	ComponentType,
 	InteractionContextType,
 	MessageFlags,
 	SlashCommandBuilder,
@@ -14,11 +15,33 @@ import {
 import type { Command } from "../../types/index.js";
 import { AiError, generateText } from "../../utils/ai.js";
 import {
+	ActionRow,
 	baseContainer,
 	errorContainer,
+	secondaryButton,
 	TextDisplay,
 } from "../../utils/components.js";
 import { logger } from "../../utils/logger.js";
+
+const COLLECTOR_TIMEOUT_MS = 5 * 60 * 1000;
+
+function buildContainer(page: string, index: number, total: number) {
+	return baseContainer().addTextDisplayComponents(
+		TextDisplay(page),
+		TextDisplay(`-# page ${index + 1} of ${total}`),
+	);
+}
+
+function buildButtons(index: number, total: number, disableAll = false) {
+	const prev = secondaryButton("prev", "ai_prev", disableAll || index === 0);
+	const page = secondaryButton(`${index + 1}/${total}`, "ai_page", true);
+	const next = secondaryButton(
+		"next",
+		"ai_next",
+		disableAll || index === total - 1,
+	);
+	return ActionRow().addComponents(prev, page, next);
+}
 
 const command: Command = {
 	restrictive: true,
@@ -51,12 +74,67 @@ const command: Command = {
 			const prompt = interaction.options.getString("prompt", true);
 
 			try {
-				const reply = await generateText(prompt);
-				await interaction.editReply({
+				const pages = await generateText(prompt);
+				const total = pages.length;
+				let index = 0;
+
+				const response = await interaction.editReply({
 					components: [
-						baseContainer().addTextDisplayComponents(TextDisplay(reply)),
+						buildContainer(
+							pages[index],
+							index,
+							total,
+						).addActionRowComponents(
+							buildButtons(index, total, total === 1),
+						),
 					],
 					flags: MessageFlags.IsComponentsV2,
+				});
+
+				if (total === 1) return;
+
+				const collector = response.createMessageComponentCollector({
+					componentType: ComponentType.Button,
+					filter: (i) => i.user.id === interaction.user.id,
+					time: COLLECTOR_TIMEOUT_MS,
+				});
+
+				collector.on("collect", async (i) => {
+					if (i.customId === "ai_prev") {
+						index = Math.max(0, index - 1);
+					} else if (i.customId === "ai_next") {
+						index = Math.min(total - 1, index + 1);
+					}
+
+					await i.update({
+						components: [
+							buildContainer(
+								pages[index],
+								index,
+								total,
+							).addActionRowComponents(buildButtons(index, total)),
+						],
+						flags: MessageFlags.IsComponentsV2,
+					});
+				});
+
+				collector.on("end", async () => {
+					try {
+						await interaction.editReply({
+							components: [
+								buildContainer(
+									pages[index],
+									index,
+									total,
+								).addActionRowComponents(
+									buildButtons(index, total, true),
+								),
+							],
+							flags: MessageFlags.IsComponentsV2,
+						});
+					} catch {
+						// message may have been deleted; ignore
+					}
 				});
 			} catch (err) {
 				logger.error(`/ai text failed: ${(err as Error).message}`);
