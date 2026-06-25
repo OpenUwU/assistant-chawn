@@ -19,7 +19,8 @@
 	},
 	"lint-staged": {
 		"*.{ts,js}": [
-			"node scripts/add-header.js --stage"
+			"node scripts/add-header.js --stage",
+			"biome check --write --no-errors-on-unmatched"
 		]
 	},
 	"dependencies": {
