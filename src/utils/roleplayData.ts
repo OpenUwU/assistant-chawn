@@ -176,13 +176,22 @@ export const ACTION_STRINGS: Record<string, { solo: string; at: string }> = {
 };
 
 export const allCategoryKeys = Object.keys(CATEGORIES);
-
 export function randomNum(category: string, exclude?: number): number {
 	const count = CATEGORIES[category];
-	let num: number;
-	do {
-		num = Math.floor(Math.random() * count) + 1;
-	} while (count > 1 && num === exclude);
+
+	if (!count || count <= 0) return 0;
+	if (count === 1) return 1;
+
+	if (exclude === undefined || exclude < 1 || exclude > count) {
+		return Math.floor(Math.random() * count) + 1;
+	}
+
+	let num = Math.floor(Math.random() * (count - 1)) + 1;
+
+	if (num >= exclude) {
+		num++;
+	}
+
 	return num;
 }
 

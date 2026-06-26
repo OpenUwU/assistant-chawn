@@ -136,8 +136,8 @@ export class BaseStore<
 		if (!row) {
 			throw new Error(
 				`[${this.cfg.table}] upsert returned no row. ` +
-					`If using ON CONFLICT DO NOTHING, switch to DO UPDATE SET <pk> = EXCLUDED.<pk> ` +
-					`so RETURNING * always produces a row.`,
+					"If using ON CONFLICT DO NOTHING, switch to DO UPDATE SET <pk> = EXCLUDED.<pk> " +
+					"so RETURNING * always produces a row.",
 			);
 		}
 
