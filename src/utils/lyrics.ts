@@ -82,10 +82,10 @@ function cleanText(text: string): string {
 }
 
 function lrcTime(ms: number): string {
-	const m = Math.floor(ms / 60000);
-	const s = Math.floor((ms % 60000) / 1000);
-	const cs = Math.floor((ms % 1000) / 10);
-	return `[${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(cs).padStart(2, "0")}]`;
+	const minutes = Math.floor(ms / 60000);
+	const seconds = Math.floor((ms % 60000) / 1000);
+	const currentSeconds = Math.floor((ms % 1000) / 10);
+	return `[${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(currentSeconds).padStart(2, "0")}]`;
 }
 
 async function fetchJsonSafe<T>(
@@ -114,9 +114,9 @@ export function parseDurationToSeconds(input: string): number | null {
 }
 
 export function formatSeconds(totalSeconds: number): string {
-	const m = Math.floor(totalSeconds / 60);
-	const s = Math.floor(totalSeconds % 60);
-	return `${m}:${String(s).padStart(2, "0")}`;
+	const minutes = Math.floor(totalSeconds / 60);
+	const seconds = Math.floor(totalSeconds % 60);
+	return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
 export class LyricsFetcher {
@@ -130,13 +130,12 @@ export class LyricsFetcher {
 		this.guid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
 			/[xy]/g,
 			(ch) => {
-				const r = (Math.random() * 16) | 0;
-				return (ch === "x" ? r : (r & 0x3) | 0x8).toString(16);
+				const result = (Math.random() * 16) | 0;
+				return (ch === "x" ? result : (result & 0x3) | 0x8).toString(16);
 			},
 		);
 	}
 
-	// ── lrclib: search (multi-candidate, used for duration scoring / picker UI) ──
 	async searchLrclib(
 		song: string,
 		artist?: string,
@@ -162,14 +161,13 @@ export class LyricsFetcher {
 					const diff = Math.abs(c.duration - targetSeconds);
 					score = Math.max(0, 100 - diff * 8); // -8 pts per second off
 				} else if (targetSeconds !== null && c.duration === null) {
-					score = 40; // unknown duration, can't confirm match
+					score = 40;
 				}
 				return { ...c, score };
 			})
 			.sort((a, b) => b.score - a.score);
 	}
 
-	// ── lrclib: direct get (single best match) ───────────────────────────────
 	async getLrclib(artist: string, song: string): Promise<LyricsResult | null> {
 		const data = await fetchJsonSafe<{
 			syncedLyrics?: string;
@@ -190,7 +188,6 @@ export class LyricsFetcher {
 		};
 	}
 
-	// ── musixmatch ────────────────────────────────────────────────────────────
 	private async getMxmToken(): Promise<string | null> {
 		if (this.mxmToken && Date.now() < this.mxmTokenExp) return this.mxmToken;
 		const data = await fetchJsonSafe<{
@@ -292,7 +289,6 @@ export class LyricsFetcher {
 		return null;
 	}
 
-	// ── deezer ────────────────────────────────────────────────────────────────
 	private async getDeezerJwt(): Promise<string | null> {
 		if (this.deezerJwt && Date.now() < this.deezerJwtExp)
 			return this.deezerJwt;
@@ -361,7 +357,6 @@ export class LyricsFetcher {
 		return null;
 	}
 
-	// ── genius ────────────────────────────────────────────────────────────────
 	async getGenius(artist: string, song: string): Promise<LyricsResult | null> {
 		const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 		const searchData = await fetchJsonSafe<{
@@ -417,13 +412,13 @@ export class LyricsFetcher {
 		const cleanSong = cleanText(song);
 		switch (source) {
 			case "lrclib":
-				return this.getLrclib(cleanArtist, cleanSong);
+				return await this.getLrclib(cleanArtist, cleanSong);
 			case "musixmatch":
-				return this.getMusixmatch(cleanArtist, cleanSong);
+				return await this.getMusixmatch(cleanArtist, cleanSong);
 			case "deezer":
-				return this.getDeezer(cleanArtist, cleanSong);
+				return await this.getDeezer(cleanArtist, cleanSong);
 			case "genius":
-				return this.getGenius(cleanArtist, cleanSong);
+				return await this.getGenius(cleanArtist, cleanSong);
 		}
 	}
 
@@ -441,19 +436,18 @@ export class LyricsFetcher {
 		];
 		const remaining = order.filter((s) => !tried.includes(s));
 
-		// prefer synced first
 		for (const source of remaining) {
-			const r = await this.getFromSource(source, artist, song).catch(
+			const result = await this.getFromSource(source, artist, song).catch(
 				() => null,
 			);
-			if (r?.synced) return r;
+			if (result?.synced) return result;
 		}
-		// fall back to plain from any remaining source
+
 		for (const source of remaining) {
-			const r = await this.getFromSource(source, artist, song).catch(
+			const result = await this.getFromSource(source, artist, song).catch(
 				() => null,
 			);
-			if (r?.plain) return r;
+			if (result?.plain) return result;
 		}
 		return null;
 	}

@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Credits: The OpenUwU Project
  * Author:  @bre4d777 and collaborators

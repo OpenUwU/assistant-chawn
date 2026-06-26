@@ -81,7 +81,7 @@ const command: Command = {
 			`**ID:** \`${fullUser.id}\``,
 			`**Tag:** ${fullUser.tag}`,
 			`**Bot:** ${fullUser.bot ? "Yes" : "No"}`,
-			fullUser.system ? `**System:** Yes` : null,
+			fullUser.system ? "**System:** Yes" : null,
 		]
 			.filter(Boolean)
 			.join("\n");

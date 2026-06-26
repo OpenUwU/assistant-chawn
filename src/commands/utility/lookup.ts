@@ -197,7 +197,7 @@ const command: Command = {
 						TextDisplay(`### IP Lookup: ${data.query}`),
 					)
 					.addSeparatorComponents(Separator())
-					.addTextDisplayComponents(TextDisplay(`** IP Information **`))
+					.addTextDisplayComponents(TextDisplay("** IP Information **"))
 					.addTextDisplayComponents(
 						TextDisplay(`>>> **Country:**: ${data.country ?? "Unknown"}`),
 					)

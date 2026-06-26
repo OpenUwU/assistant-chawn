@@ -24,7 +24,7 @@ import {
 } from "../../utils/components.js";
 import { logger } from "../../utils/logger.js";
 
-async function buildQrBuffer(text: string): Promise<Buffer> {
+function buildQrBuffer(text: string): Buffer {
 	const gifBytes = encodeQR(text, "gif", { scale: 8 });
 	return Buffer.from(gifBytes);
 }
@@ -162,8 +162,10 @@ const command: Command = {
 			}
 
 			try {
-				const buf = await buildQrBuffer(url);
-				const attachment = new AttachmentBuilder(buf, { name: "qr.gif" });
+				const buffer = buildQrBuffer(url);
+				const attachment = new AttachmentBuilder(buffer, {
+					name: "qr.gif",
+				});
 
 				await interaction.editReply({
 					files: [attachment],
@@ -182,8 +184,10 @@ const command: Command = {
 			const text = interaction.options.getString("text", true);
 
 			try {
-				const buf = await buildQrBuffer(text);
-				const attachment = new AttachmentBuilder(buf, { name: "qr.gif" });
+				const buffer = buildQrBuffer(text);
+				const attachment = new AttachmentBuilder(buffer, {
+					name: "qr.gif",
+				});
 
 				await interaction.editReply({
 					files: [attachment],

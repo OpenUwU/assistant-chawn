@@ -41,7 +41,7 @@ const store = new BaseStore<AccessRow, AccessEntry, "user_id">({
 });
 
 export async function hasAccess(userId: string): Promise<boolean> {
-	return store.has(userId);
+	return await store.has(userId);
 }
 
 /**
@@ -62,7 +62,7 @@ export async function revokeAccess(userId: string): Promise<void> {
 }
 
 export async function listAuthorized(): Promise<AccessEntry[]> {
-	return store.getAll();
+	return await store.getAll();
 }
 
 export async function hydrateAccess(): Promise<void> {
