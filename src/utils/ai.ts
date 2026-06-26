@@ -190,24 +190,24 @@ export function paginateForDiscord(
 		}
 
 		for (const para of raw.split(/\n\n+/)) {
-			const p = para.trim();
-			if (!p) continue;
+			const finalPara = para.trim();
+			if (!finalPara) continue;
 
-			const candidate = current ? `${current}\n\n${p}` : p;
+			const candidate = current ? `${current}\n\n${finalPara}` : finalPara;
 
 			if (candidate.length <= pageSize) {
 				current = candidate;
 				continue;
 			}
 
-			if (p.length <= pageSize) {
+			if (finalPara.length <= pageSize) {
 				flush();
-				current = p;
+				current = finalPara;
 				continue;
 			}
 
 			flush();
-			const parts = splitTextSafe(p, pageSize);
+			const parts = splitTextSafe(finalPara, pageSize);
 			for (let i = 0; i < parts.length - 1; i++) pages.push(parts[i]);
 			current = parts.at(-1) ?? "";
 		}

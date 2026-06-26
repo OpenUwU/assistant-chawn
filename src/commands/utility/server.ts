@@ -293,19 +293,25 @@ const command: Command = {
 						section.setThumbnailAccessory(
 							Thumbnail("server icon", iconURL),
 						);
-					const c = baseContainer().addSectionComponents(section);
+					const container = baseContainer().addSectionComponents(section);
 					if (bannerURL)
-						c.addMediaGalleryComponents(
+						container.addMediaGalleryComponents(
 							new MediaGalleryBuilder().addItems((media) =>
 								media.setDescription("server banner").setURL(bannerURL),
 							),
 						);
-					c.addSeparatorComponents(Separator()).addActionRowComponents(
-						ActionRow().addComponents(
-							secondaryButton("View Features", "server_features", true),
-						),
-					);
-					return c;
+					container
+						.addSeparatorComponents(Separator())
+						.addActionRowComponents(
+							ActionRow().addComponents(
+								secondaryButton(
+									"View Features",
+									"server_features",
+									true,
+								),
+							),
+						);
+					return container;
 				} else if (page === 1) {
 					return baseContainer()
 						.addTextDisplayComponents(
