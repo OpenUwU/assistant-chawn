@@ -436,19 +436,14 @@ export class LyricsFetcher {
 		];
 		const remaining = order.filter((s) => !tried.includes(s));
 
+		let plainFallback: LyricsResult | null = null;
 		for (const source of remaining) {
 			const result = await this.getFromSource(source, artist, song).catch(
 				() => null,
 			);
 			if (result?.synced) return result;
+			if (result?.plain && !plainFallback) plainFallback = result;
 		}
-
-		for (const source of remaining) {
-			const result = await this.getFromSource(source, artist, song).catch(
-				() => null,
-			);
-			if (result?.plain) return result;
-		}
-		return null;
+		return plainFallback;
 	}
 }
