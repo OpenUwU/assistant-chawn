@@ -11,6 +11,7 @@ import {
 	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
+import type { ExtendedClient } from "../../client.js";
 import type { Command } from "../../types/index.js";
 import {
 	baseContainer,
@@ -43,7 +44,8 @@ const command: Command = {
 			InteractionContextType.PrivateChannel,
 		),
 
-	execute: async (interaction, client) => {
+	execute: async (interaction) => {
+		const client = interaction.client as ExtendedClient;
 		const uptime = client.uptime ? formatUptime(client.uptime) : "unknown";
 		const memoryMb = (process.memoryUsage().rss / 1024 / 1024).toFixed(1);
 

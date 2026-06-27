@@ -28,6 +28,7 @@
 	"dependencies": {
 		"@biomejs/biome": "^2.5.0",
 		"@sourcebin/linguist": "^0.0.3",
+		"discolink": "^5.1.0",
 		"discord.js": "^14.16.3",
 		"dotenv": "^16.4.5",
 		"ioredis": "^5.11.1",

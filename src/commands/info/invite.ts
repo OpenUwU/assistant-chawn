@@ -11,6 +11,7 @@ import {
 	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
+import type { ExtendedClient } from "../../client.js";
 import type { Command } from "../../types/index.js";
 import { ActionRow, linkButton } from "../../utils/components.js";
 
@@ -28,7 +29,8 @@ const command: Command = {
 			InteractionContextType.PrivateChannel,
 		),
 
-	execute: async (interaction, client) => {
+	execute: async (interaction) => {
+		const client = interaction.client as ExtendedClient;
 		const clientId = client.user?.id;
 		const inviteUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}`;
 

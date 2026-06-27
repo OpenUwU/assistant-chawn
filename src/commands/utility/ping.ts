@@ -26,9 +26,9 @@ const command: Command = {
 			InteractionContextType.PrivateChannel,
 		),
 
-	execute: async (interaction, client) => {
+	execute: async (interaction) => {
 		const roundtrip = Date.now() - interaction.createdTimestamp;
-
+		const client = interaction.client;
 		let MsgContent = `>>> 🏓 Pong! \n Websocket: ${client.ws.ping}ms (Roundtrip: ${roundtrip}ms) `;
 		if (client.readyTimestamp) {
 			MsgContent += `\n Ready since  <t:${Math.floor(client.readyTimestamp / 1000)}:F>`;
