@@ -75,7 +75,7 @@ async function bootstrap(): Promise<void> {
 	});
 	player.on("trackStart", (queue, track) => {
 		logger.info(`Track started: ${track.title}`);
-		if (!queue.context?.textId) return;
+		if (queue.context.textId) return;
 		void sendQueueNotice(
 			client,
 			queue.context?.textId,
@@ -84,7 +84,7 @@ async function bootstrap(): Promise<void> {
 	});
 	player.on("queueFinish", (queue) => {
 		logger.info(`Queue finished: ${queue.guildId}`);
-		if (!queue.context?.textId) return;
+		if (queue.context.textId) return;
 		void sendQueueNotice(client, queue.context?.textId, "Queue finished");
 	});
 }
